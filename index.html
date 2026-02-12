@@ -2,208 +2,158 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Démineur Infini</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  background: #008080;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  font-family: 'Courier New', monospace;
+html, body {
+  width: 100%; height: 100%;
   overflow: hidden;
+  background: #008080;
+  font-family: 'Courier New', monospace;
 }
 
 #window {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
   background: #C0C0C0;
   border: 3px solid;
   border-color: #DFDFDF #404040 #404040 #DFDFDF;
-  box-shadow: 4px 4px 0 #000;
   user-select: none;
-  min-width: 400px;
 }
 
 #titlebar {
+  flex: 0 0 auto;
   background: #000080;
-  color: white;
-  padding: 3px 6px;
-  font-size: 12px;
+  color: #fff;
+  padding: 3px 8px;
+  font-size: clamp(11px, 1.5vw, 14px);
   font-weight: bold;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  white-space: nowrap;
 }
-
-#titlebar-btns {
-  margin-left: auto;
-  display: flex;
-  gap: 2px;
-}
-
+#titlebar-btns { margin-left: auto; display: flex; gap: 2px; }
 .tb-btn {
-  width: 16px;
-  height: 14px;
+  width: 18px; height: 16px;
   background: #C0C0C0;
   border: 1px solid;
   border-color: #DFDFDF #404040 #404040 #DFDFDF;
-  font-size: 9px;
-  cursor: pointer;
-  color: black;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Courier New';
-  line-height: 1;
+  font-size: 9px; cursor: pointer; color: #000;
+  display: flex; align-items: center; justify-content: center;
 }
-
-.tb-btn:active {
-  border-color: #404040 #DFDFDF #DFDFDF #404040;
-}
+.tb-btn:active { border-color: #404040 #DFDFDF #DFDFDF #404040; }
 
 #header {
-  margin: 8px;
-  padding: 5px 8px;
+  flex: 0 0 auto;
+  margin: 6px 6px 4px;
+  padding: 4px 10px;
   border: 2px solid;
   border-color: #808080 #DFDFDF #DFDFDF #808080;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
   background: #C0C0C0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
-.lcd-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-}
+.lcd-group { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 
 .lcd {
-  background: #300;
-  color: #FF2200;
+  background: #300; color: #FF2200;
   font-family: 'Courier New', monospace;
-  font-size: 22px;
+  font-size: clamp(16px, 2.8vw, 26px);
   font-weight: bold;
-  padding: 3px 8px;
-  min-width: 60px;
-  text-align: right;
-  letter-spacing: 3px;
+  padding: 2px 8px;
+  min-width: clamp(52px, 8vw, 72px);
+  text-align: right; letter-spacing: 3px;
   border: 2px solid;
   border-color: #404040 #DFDFDF #DFDFDF #404040;
-  text-shadow: 0 0 4px #FF4400;
+  text-shadow: 0 0 5px #FF4400;
+  white-space: nowrap;
 }
 
 .lcd-label {
-  font-size: 10px;
+  font-size: clamp(9px, 1.1vw, 11px);
   color: #333;
-  font-family: 'Courier New';
 }
 
+.center-controls { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+
 #face-btn {
-  width: 38px;
-  height: 36px;
+  width: clamp(34px, 4.5vw, 48px);
+  height: clamp(32px, 4vw, 44px);
   background: #C0C0C0;
   border: 3px solid;
   border-color: #DFDFDF #404040 #404040 #DFDFDF;
   cursor: pointer;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
+  font-size: clamp(16px, 2.5vw, 26px);
+  display: flex; align-items: center; justify-content: center;
 }
-
-#face-btn:active {
-  border-color: #404040 #DFDFDF #DFDFDF #404040;
-}
+#face-btn:active { border-color: #404040 #DFDFDF #DFDFDF #404040; }
 
 #undo-btn {
-  width: 38px;
-  height: 20px;
+  width: clamp(34px, 4.5vw, 48px);
+  height: clamp(18px, 2vw, 24px);
   background: #C0C0C0;
   border: 2px solid;
   border-color: #DFDFDF #404040 #404040 #DFDFDF;
   cursor: pointer;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  margin-top: 4px;
+  font-size: clamp(11px, 1.5vw, 15px);
+  display: flex; align-items: center; justify-content: center;
 }
-
-#undo-btn:active {
-  border-color: #404040 #DFDFDF #DFDFDF #404040;
-}
-
-.center-controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
+#undo-btn:active { border-color: #404040 #DFDFDF #DFDFDF #404040; }
 
 #canvas-wrap {
-  margin: 0 8px 8px 8px;
+  flex: 1 1 0;
+  margin: 0 6px 4px;
   border: 3px solid;
   border-color: #808080 #DFDFDF #DFDFDF #808080;
   overflow: hidden;
   position: relative;
   cursor: crosshair;
+  min-height: 0;
 }
-
-#canvas {
-  display: block;
-}
-
-#canvas.panning {
-  cursor: grab;
-}
+#canvas { display: block; }
+#canvas.panning { cursor: grab; }
 
 #statusbar {
-  padding: 2px 6px;
-  font-size: 10px;
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  font-size: clamp(9px, 1.1vw, 11px);
   color: #444;
-  display: flex;
-  gap: 12px;
+  display: flex; gap: 10px;
   border-top: 1px solid #808080;
-  background: #C0C0C0;
   flex-wrap: wrap;
+  white-space: nowrap;
 }
-
 #statusbar span {
   border-right: 1px solid #808080;
   padding-right: 8px;
 }
-
-#statusbar span:last-child {
-  border-right: none;
-}
+#statusbar span:last-child { border-right: none; }
 
 #gameover-banner {
   display: none;
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   background: #C0C0C0;
   border: 3px solid;
   border-color: #DFDFDF #404040 #404040 #DFDFDF;
-  padding: 10px 18px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #CC0000;
-  text-align: center;
-  z-index: 10;
-  white-space: nowrap;
+  padding: 10px 20px;
+  font-size: clamp(12px, 2vw, 16px);
+  font-weight: bold; color: #CC0000;
+  text-align: center; z-index: 10;
   box-shadow: 4px 4px 0 #000;
+  white-space: nowrap;
 }
 </style>
 </head>
 <body>
 <div id="window">
+
   <div id="titlebar">
     💣 Démineur Infini
     <div id="titlebar-btns">
@@ -220,7 +170,7 @@ body {
     </div>
 
     <div class="center-controls">
-      <button id="face-btn" title="Nouveau jeu">🙂</button>
+      <button id="face-btn" title="Nouveau jeu (Ctrl+R)">🙂</button>
       <button id="undo-btn" title="Annuler (Ctrl+Z)">↩</button>
     </div>
 
@@ -236,55 +186,87 @@ body {
   </div>
 
   <div id="statusbar">
-    <span>Ctrl+Glisser: Déplacer</span>
-    <span>Molette: Zoom</span>
-    <span>🖱️ Gauche: Révéler</span>
-    <span>🖱️ Droit: Drapeau</span>
-    <span>Ctrl+Z: Annuler</span>
+    <span>Ctrl+Glisser : Déplacer</span>
+    <span>Molette : Zoom</span>
+    <span>🖱 G : Révéler</span>
+    <span>🖱 D : Drapeau</span>
+    <span>Ctrl+Z : Annuler</span>
+    <span>Ctrl+R : Nouveau jeu</span>
   </div>
+
 </div>
-
 <script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const flagLcd = document.getElementById('flag-lcd');
-const undoLcd = document.getElementById('undo-lcd');
-const faceBtnEl = document.getElementById('face-btn');
-const undoBtnEl = document.getElementById('undo-btn');
+// ─────────────────────────────────────────────────────────────────────────────
+// DOM
+// ─────────────────────────────────────────────────────────────────────────────
+const canvas         = document.getElementById('canvas');
+const ctx            = canvas.getContext('2d');
+const flagLcd        = document.getElementById('flag-lcd');
+const undoLcd        = document.getElementById('undo-lcd');
+const faceBtnEl      = document.getElementById('face-btn');
+const undoBtnEl      = document.getElementById('undo-btn');
 const gameoverBanner = document.getElementById('gameover-banner');
-const canvasWrap = document.getElementById('canvas-wrap');
+const canvasWrap     = document.getElementById('canvas-wrap');
 
-// --- Config ---
-const BASE_CELL = 22;
-const MINE_PCT = 18;    // % chance of mine per cell
-const MAX_FLOOD = 8000; // max cells to reveal in one flood fill
-const MAX_UNDO  = 60;
+// ─────────────────────────────────────────────────────────────────────────────
+// Config
+// ─────────────────────────────────────────────────────────────────────────────
+const BASE_CELL       = 22;
+const MINE_PCT        = 18;      // % of cells that are mines
+const SAFE_RADIUS     = 4;       // guaranteed mine-free ring on first click
+const MAX_FLOOD       = 20000;   // BFS limit to avoid freezing
+const MAX_UNDO        = 80;
+const ZOOM_MIN        = 0.18;
+const ZOOM_MAX        = 4.5;
 
-const W = 600, H = 440;
-canvas.width  = W;
-canvas.height = H;
-canvasWrap.style.width  = W + 'px';
-canvasWrap.style.height = H + 'px';
+// Classic Win95 number colours
+const NUM_COLORS = [
+  null,
+  '#0000CC', // 1 – blue
+  '#007700', // 2 – green
+  '#CC0000', // 3 – red
+  '#000077', // 4 – dark blue
+  '#880000', // 5 – dark red
+  '#007777', // 6 – teal
+  '#111111', // 7 – black
+  '#777777', // 8 – grey
+];
 
-// --- State ---
-let revealed, flagged, gameOver, dead, undoCount, undoStack;
+// ─────────────────────────────────────────────────────────────────────────────
+// Game state
+// ─────────────────────────────────────────────────────────────────────────────
+let revealed;    // Set<string>  – keys of revealed cells
+let flagged;     // Set<string>  – keys of flagged cells
+let safeCells;   // Set<string>  – cells forced mine-free (first-click area)
+let gameOver;    // bool
+let dead;        // bool
+let firstClick;  // bool – is the very next reveal the first one?
+let undoCount;   // number
+let undoStack;   // Array of snapshots
 
-// --- View ---
-let offX, offY, zoom;
-const ZOOM_MIN = 0.25, ZOOM_MAX = 3.5;
+// ─────────────────────────────────────────────────────────────────────────────
+// View state
+// ─────────────────────────────────────────────────────────────────────────────
+let W = 0, H = 0;   // canvas pixel dimensions
+let offX, offY;     // world → screen offset (pixels)
+let zoom;           // current zoom level
 
-// --- Pan ---
-let panning = false, panX0, panY0, offX0, offY0;
-let didPan = false;
+// ─────────────────────────────────────────────────────────────────────────────
+// Pan state
+// ─────────────────────────────────────────────────────────────────────────────
+let panning   = false;
+let panX0, panY0, offX0, offY0;
+let didPan    = false;
 
-// --- Colors ---
-const NUM_COLORS = [null,'#0000CC','#007700','#CC0000','#000077','#880000','#007777','#111111','#777777'];
+// ─────────────────────────────────────────────────────────────────────────────
+// Deterministic infinite mine map
+// ─────────────────────────────────────────────────────────────────────────────
 
-// ============================================================
-// Seeded deterministic mine placement
-// ============================================================
+/**
+ * Fast, decent 32-bit integer hash of a cell coordinate pair.
+ * Different seeds are mixed in for X and Y to avoid symmetry artefacts.
+ */
 function hashXY(x, y) {
-  // 32-bit integer hash
   let h = Math.imul(x | 0, 0x9e3779b9) ^ Math.imul(y | 0, 0x6c62272e);
   h ^= h >>> 16;
   h  = Math.imul(h, 0x45d9f3b);
@@ -292,54 +274,63 @@ function hashXY(x, y) {
   return h >>> 0;
 }
 
+/**
+ * Returns true when cell (x, y) contains a mine.
+ * safeCells always overrides the hash (guaranteed safe on first click).
+ */
 function hasMine(x, y) {
+  if (safeCells.has(K(x, y))) return false;
   return hashXY(x, y) % 100 < MINE_PCT;
 }
 
+/** Count mines in the 8 neighbours of (x, y). */
 function countMines(x, y) {
   let n = 0;
   for (let dy = -1; dy <= 1; dy++)
     for (let dx = -1; dx <= 1; dx++)
-      if (!(dx===0&&dy===0) && hasMine(x+dx, y+dy)) n++;
+      if (!(dx === 0 && dy === 0) && hasMine(x + dx, y + dy)) n++;
   return n;
 }
 
-// ============================================================
-// Helpers
-// ============================================================
-function K(x, y) { return x + ',' + y; }
-
-function cellSize() { return BASE_CELL * zoom; }
+// ─────────────────────────────────────────────────────────────────────────────
+// Small helpers
+// ─────────────────────────────────────────────────────────────────────────────
+const K  = (x, y) => `${x},${y}`;
+const cs = ()     => BASE_CELL * zoom;
 
 function screenToCell(sx, sy) {
-  const cs = cellSize();
-  return [Math.floor((sx - offX) / cs), Math.floor((sy - offY) / cs)];
+  const c = cs();
+  return [Math.floor((sx - offX) / c), Math.floor((sy - offY) / c)];
 }
-
 function cellToScreen(cx, cy) {
-  const cs = cellSize();
-  return [cx * cs + offX, cy * cs + offY];
+  const c = cs();
+  return [cx * c + offX, cy * c + offY];
 }
 
-// ============================================================
-// Undo / Snap
-// ============================================================
+// ─────────────────────────────────────────────────────────────────────────────
+// Undo system
+// ─────────────────────────────────────────────────────────────────────────────
 function snap() {
   undoStack.push({
-    revealed: new Set(revealed),
-    flagged:  new Set(flagged),
-    gameOver, dead
+    revealed:  new Set(revealed),
+    flagged:   new Set(flagged),
+    safeCells: new Set(safeCells),
+    gameOver,
+    dead,
+    firstClick,
   });
   if (undoStack.length > MAX_UNDO) undoStack.shift();
 }
 
 function undo() {
   if (!undoStack.length) return;
-  const s = undoStack.pop();
-  revealed  = s.revealed;
-  flagged   = s.flagged;
-  gameOver  = s.gameOver;
-  dead      = s.dead;
+  const s    = undoStack.pop();
+  revealed   = s.revealed;
+  flagged    = s.flagged;
+  safeCells  = s.safeCells;
+  gameOver   = s.gameOver;
+  dead       = s.dead;
+  firstClick = s.firstClick;
   undoCount++;
   if (!dead) setFace('normal');
   gameoverBanner.style.display = 'none';
@@ -347,43 +338,78 @@ function undo() {
   render();
 }
 
-// ============================================================
-// Actions
-// ============================================================
+// ─────────────────────────────────────────────────────────────────────────────
+// First-click safe zone
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Mark a diamond-shaped (Chebyshev) region of radius SAFE_RADIUS around
+ * (ox, oy) as mine-free.  This guarantees:
+ *   • The clicked cell is safe.
+ *   • All its 8 neighbours are safe  → number = 0 → flood fill starts.
+ *   • A larger halo with radius SAFE_RADIUS ensures many more cells open up,
+ *     just like the original Win95 Minesweeper.
+ */
+function buildSafeZone(ox, oy) {
+  safeCells.clear();
+  for (let dy = -SAFE_RADIUS; dy <= SAFE_RADIUS; dy++) {
+    for (let dx = -SAFE_RADIUS; dx <= SAFE_RADIUS; dx++) {
+      safeCells.add(K(ox + dx, oy + dy));
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Core actions
+// ─────────────────────────────────────────────────────────────────────────────
+
 function reveal(x, y) {
   if (gameOver) return;
   const k = K(x, y);
   if (revealed.has(k) || flagged.has(k)) return;
 
-  snap();
-  setFace('normal');
+  // ── First click: carve a safe zone then proceed normally ──
+  if (firstClick) {
+    snap();           // undo point before any reveal
+    buildSafeZone(x, y);
+    firstClick = false;
+    setFace('normal');
+  } else {
+    snap();
+    setFace('normal');
+  }
 
+  // ── Hit a mine ──
   if (hasMine(x, y)) {
     revealed.add(k);
-    dead = true;
-    gameOver = true;
+    dead = gameOver = true;
     setFace('dead');
-    showGameOver('💥 BOOM ! Utilise ↩ pour revenir en arrière');
+    showGameOver('💥 BOOM !   Appuie sur ↩ pour revenir en arrière');
     updateLCDs();
     render();
     return;
   }
 
-  // BFS flood fill
+  // ── BFS flood fill ──
   const queue = [[x, y]];
   const seen  = new Set([k]);
-  let count = 0;
+  let   count = 0;
 
   while (queue.length && count < MAX_FLOOD) {
     const [cx, cy] = queue.shift();
     const ck = K(cx, cy);
-    if (!revealed.has(ck)) { revealed.add(ck); count++; }
 
+    if (!revealed.has(ck)) {
+      revealed.add(ck);
+      count++;
+    }
+
+    // Propagate through empty cells (0 adjacent mines)
     if (countMines(cx, cy) === 0) {
       for (let dy = -1; dy <= 1; dy++) {
         for (let dx = -1; dx <= 1; dx++) {
-          if (dx===0 && dy===0) continue;
-          const nx = cx+dx, ny = cy+dy;
+          if (!dx && !dy) continue;
+          const nx = cx + dx, ny = cy + dy;
           const nk = K(nx, ny);
           if (!seen.has(nk) && !hasMine(nx, ny) && !flagged.has(nk)) {
             seen.add(nk);
@@ -402,167 +428,157 @@ function toggleFlag(x, y) {
   if (gameOver) return;
   const k = K(x, y);
   if (revealed.has(k)) return;
-
   snap();
-
-  if (flagged.has(k)) flagged.delete(k);
-  else                flagged.add(k);
-
+  flagged.has(k) ? flagged.delete(k) : flagged.add(k);
   updateLCDs();
   render();
 }
 
-// ============================================================
+// ─────────────────────────────────────────────────────────────────────────────
 // UI helpers
-// ============================================================
+// ─────────────────────────────────────────────────────────────────────────────
 function setFace(f) {
-  const faces = { normal:'🙂', dead:'😵', scared:'😮' };
-  faceBtnEl.textContent = faces[f] || '🙂';
+  const map = { normal: '🙂', dead: '😵', scared: '😮' };
+  faceBtnEl.textContent = map[f] ?? '🙂';
 }
-
 function showGameOver(msg) {
-  gameoverBanner.textContent = msg;
-  gameoverBanner.style.display = 'block';
+  gameoverBanner.textContent    = msg;
+  gameoverBanner.style.display  = 'block';
 }
-
 function updateLCDs() {
   flagLcd.textContent = String(Math.min(flagged.size, 999)).padStart(3, '0');
-  undoLcd.textContent = String(Math.min(undoCount, 999)).padStart(3, '0');
+  undoLcd.textContent = String(Math.min(undoCount,   999)).padStart(3, '0');
 }
 
-// ============================================================
+// ─────────────────────────────────────────────────────────────────────────────
 // Rendering
-// ============================================================
+// ─────────────────────────────────────────────────────────────────────────────
 function render() {
-  const cs = cellSize();
+  const c = cs();
   ctx.clearRect(0, 0, W, H);
 
-  // Fill background with a checker-like dark pattern outside cells
+  // Background between cells
   ctx.fillStyle = '#7b7b7b';
   ctx.fillRect(0, 0, W, H);
 
-  const x0 = Math.floor(-offX / cs) - 1;
-  const y0 = Math.floor(-offY / cs) - 1;
-  const x1 = Math.ceil((W - offX) / cs) + 1;
-  const y1 = Math.ceil((H - offY) / cs) + 1;
+  // Visible cell range
+  const x0 = Math.floor(-offX / c) - 1;
+  const y0 = Math.floor(-offY / c) - 1;
+  const x1 = Math.ceil((W - offX) / c) + 1;
+  const y1 = Math.ceil((H - offY) / c) + 1;
 
-  for (let cy = y0; cy <= y1; cy++) {
-    for (let cx = x0; cx <= x1; cx++) {
-      drawCell(cx, cy, cs);
-    }
-  }
+  for (let cy = y0; cy <= y1; cy++)
+    for (let cx = x0; cx <= x1; cx++)
+      drawCell(cx, cy, c);
 }
 
-function drawCell(cx, cy, cs) {
+function drawCell(cx, cy, c) {
   const k = K(cx, cy);
   const [sx, sy] = cellToScreen(cx, cy);
-  if (sx+cs < 0 || sx > W || sy+cs < 0 || sy > H) return;
+  if (sx + c < 0 || sx > W || sy + c < 0 || sy > H) return;
 
   const isRev  = revealed.has(k);
   const isFl   = flagged.has(k);
   const isMine = hasMine(cx, cy);
 
-  if (isRev) {
-    drawRevealedCell(sx, sy, cs, isMine, isFl, cx, cy);
-  } else {
-    drawHiddenCell(sx, sy, cs, isFl, isMine);
-  }
+  if (isRev) drawRevealedCell(sx, sy, c, isMine, isFl, cx, cy);
+  else       drawHiddenCell(sx, sy, c, isFl, isMine);
 }
 
-function drawHiddenCell(sx, sy, cs, isFl, isMine) {
-  const b = Math.max(1, cs * 0.08);
+// ── Hidden (unrevealed) cell ──────────────────────────────────────────────────
+function drawHiddenCell(sx, sy, c, isFl, isMine) {
+  const b = Math.max(1, c * 0.08);
 
-  // Base fill
+  // Face
   ctx.fillStyle = '#C0C0C0';
-  ctx.fillRect(sx, sy, cs, cs);
+  ctx.fillRect(sx, sy, c, c);
 
-  // Top & left highlights
+  // Top & left highlight
   ctx.fillStyle = '#FFFFFF';
-  ctx.fillRect(sx, sy, cs, b);
-  ctx.fillRect(sx, sy, b, cs);
+  ctx.fillRect(sx,       sy,       c,  b);
+  ctx.fillRect(sx,       sy,       b,  c);
 
   // Bottom & right outer shadow
   ctx.fillStyle = '#808080';
-  ctx.fillRect(sx, sy + cs - b*2, cs, b);
-  ctx.fillRect(sx + cs - b*2, sy, b, cs);
+  ctx.fillRect(sx,       sy + c - b*2, c,  b);
+  ctx.fillRect(sx + c - b*2, sy,       b,  c);
 
   // Bottom & right dark shadow
   ctx.fillStyle = '#404040';
-  ctx.fillRect(sx, sy + cs - b, cs, b);
-  ctx.fillRect(sx + cs - b, sy, b, cs);
+  ctx.fillRect(sx,       sy + c - b,   c,  b);
+  ctx.fillRect(sx + c - b,   sy,       b,  c);
 
   if (isFl) {
-    drawFlag(sx, sy, cs);
+    drawFlag(sx, sy, c);
   } else if (gameOver && dead && isMine) {
-    // Reveal untriggered mines after death
-    ctx.fillStyle = '#C0C0C0';
-    drawMine(sx, sy, cs, false);
+    // Reveal un-triggered mines after death
+    drawMine(sx, sy, c);
   }
 }
 
-function drawRevealedCell(sx, sy, cs, isMine, isFl, cx, cy) {
-  const b = Math.max(1, cs * 0.04);
+// ── Revealed cell ──────────────────────────────────────────────────────────────
+function drawRevealedCell(sx, sy, c, isMine, isFl, cx, cy) {
+  const b = Math.max(1, c * 0.04);
 
-  if (isMine && dead) {
-    ctx.fillStyle = '#FF4444';
-  } else {
-    ctx.fillStyle = '#BEBEBE';
-  }
-  ctx.fillRect(sx, sy, cs, cs);
+  // Background – red if the fatal mine
+  ctx.fillStyle = (isMine && dead) ? '#FF4444' : '#BEBEBE';
+  ctx.fillRect(sx, sy, c, c);
 
-  // Thin sunken border
+  // Sunken border
   ctx.fillStyle = '#808080';
-  ctx.fillRect(sx, sy, cs, b);
-  ctx.fillRect(sx, sy, b, cs);
+  ctx.fillRect(sx,       sy,       c,  b);
+  ctx.fillRect(sx,       sy,       b,  c);
   ctx.fillStyle = '#DFDFDF';
-  ctx.fillRect(sx, sy + cs - b, cs, b);
-  ctx.fillRect(sx + cs - b, sy, b, cs);
+  ctx.fillRect(sx,       sy + c - b, c,  b);
+  ctx.fillRect(sx + c - b, sy,       b,  c);
 
   if (isMine) {
-    drawMine(sx, sy, cs, dead);
+    drawMine(sx, sy, c);
   } else {
     const n = countMines(cx, cy);
     if (n > 0) {
-      ctx.fillStyle = NUM_COLORS[n] || '#000';
-      const fs = Math.max(8, Math.floor(cs * 0.62));
-      ctx.font = `bold ${fs}px "Courier New"`;
+      ctx.fillStyle    = NUM_COLORS[n] || '#000';
+      const fs         = Math.max(8, Math.floor(c * 0.62));
+      ctx.font         = `bold ${fs}px "Courier New"`;
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(n, sx + cs/2, sy + cs/2 + 1);
+      ctx.fillText(n, sx + c / 2, sy + c / 2 + 1);
     }
   }
 
-  // Wrong flag (flagged but not mine — shown on game over)
-  if (isFl && gameOver && !isMine) drawWrongFlag(sx, sy, cs);
+  // Wrong flag marker (flagged non-mine – shown after death)
+  if (isFl && gameOver && !isMine) drawWrongFlag(sx, sy, c);
 }
 
-function drawFlag(sx, sy, cs) {
-  const p   = cs * 0.15;
-  const mid = cs / 2;
-  const fw  = Math.max(1.5, cs * 0.08);
+// ── Flag ───────────────────────────────────────────────────────────────────────
+function drawFlag(sx, sy, c) {
+  const p   = c * 0.15;
+  const mid = c / 2;
+  const fw  = Math.max(1.5, c * 0.08);
 
   // Pole
   ctx.fillStyle = '#111';
-  ctx.fillRect(sx + mid - fw/2, sy + p, fw, cs * 0.7);
+  ctx.fillRect(sx + mid - fw / 2, sy + p, fw, c * 0.7);
 
-  // Flag (triangle)
+  // Red triangular flag
   ctx.fillStyle = '#DD0000';
   ctx.beginPath();
-  ctx.moveTo(sx + mid + fw/2, sy + p + 1);
-  ctx.lineTo(sx + cs * 0.78, sy + cs * 0.35);
-  ctx.lineTo(sx + mid + fw/2, sy + cs * 0.52);
+  ctx.moveTo(sx + mid + fw / 2, sy + p + 1);
+  ctx.lineTo(sx + c * 0.78,     sy + c * 0.35);
+  ctx.lineTo(sx + mid + fw / 2, sy + c * 0.52);
   ctx.closePath();
   ctx.fill();
 
-  // Base
+  // Base bar
   ctx.fillStyle = '#111';
-  const bw = cs * 0.45, bh = Math.max(1.5, cs * 0.08);
-  ctx.fillRect(sx + (cs - bw)/2, sy + cs - p - bh, bw, bh);
+  const bw = c * 0.45, bh = Math.max(1.5, c * 0.08);
+  ctx.fillRect(sx + (c - bw) / 2, sy + c - p - bh, bw, bh);
 }
 
-function drawMine(sx, sy, cs, isHit) {
-  const mx = sx + cs/2, my = sy + cs/2;
-  const r  = cs * 0.28;
+// ── Mine ───────────────────────────────────────────────────────────────────────
+function drawMine(sx, sy, c) {
+  const mx = sx + c / 2, my = sy + c / 2;
+  const r  = c * 0.28;
   const lw = Math.max(1, r * 0.22);
 
   // Spikes
@@ -571,59 +587,84 @@ function drawMine(sx, sy, cs, isHit) {
   for (let i = 0; i < 8; i++) {
     const a = (i * Math.PI) / 4;
     ctx.beginPath();
-    ctx.moveTo(mx + Math.cos(a)*r*0.75, my + Math.sin(a)*r*0.75);
-    ctx.lineTo(mx + Math.cos(a)*r*1.45, my + Math.sin(a)*r*1.45);
+    ctx.moveTo(mx + Math.cos(a) * r * 0.75, my + Math.sin(a) * r * 0.75);
+    ctx.lineTo(mx + Math.cos(a) * r * 1.45, my + Math.sin(a) * r * 1.45);
     ctx.stroke();
   }
 
   // Body
   ctx.fillStyle = '#111';
   ctx.beginPath();
-  ctx.arc(mx, my, r, 0, Math.PI*2);
+  ctx.arc(mx, my, r, 0, Math.PI * 2);
   ctx.fill();
 
-  // Shine
+  // Shine dot
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
   ctx.beginPath();
-  ctx.arc(mx - r*0.28, my - r*0.3, r*0.18, 0, Math.PI*2);
+  ctx.arc(mx - r * 0.28, my - r * 0.30, r * 0.18, 0, Math.PI * 2);
   ctx.fill();
 }
 
-function drawWrongFlag(sx, sy, cs) {
-  const p  = cs * 0.18;
-  const lw = Math.max(2, cs * 0.1);
+// ── Wrong-flag cross ───────────────────────────────────────────────────────────
+function drawWrongFlag(sx, sy, c) {
+  const p  = c * 0.18;
+  const lw = Math.max(2, c * 0.1);
   ctx.strokeStyle = '#FF0000';
   ctx.lineWidth   = lw;
   ctx.beginPath();
-  ctx.moveTo(sx+p, sy+p);   ctx.lineTo(sx+cs-p, sy+cs-p);
-  ctx.moveTo(sx+cs-p, sy+p); ctx.lineTo(sx+p, sy+cs-p);
+  ctx.moveTo(sx + p,     sy + p);     ctx.lineTo(sx + c - p, sy + c - p);
+  ctx.moveTo(sx + c - p, sy + p);     ctx.lineTo(sx + p,     sy + c - p);
   ctx.stroke();
 }
 
-// ============================================================
-// Reset
-// ============================================================
+// ─────────────────────────────────────────────────────────────────────────────
+// Responsive resize – canvas fills its container
+// ─────────────────────────────────────────────────────────────────────────────
+function resize() {
+  const rect = canvasWrap.getBoundingClientRect();
+  const nw   = Math.floor(rect.width);
+  const nh   = Math.floor(rect.height);
+  if (nw === W && nh === H) return;
+
+  // Keep the same visual centre after resize
+  const fx = W ? offX / W : 0.5;
+  const fy = H ? offY / H : 0.5;
+  W = canvas.width  = nw;
+  H = canvas.height = nh;
+  offX = fx * W;
+  offY = fy * H;
+  render();
+}
+
+const ro = new ResizeObserver(resize);
+ro.observe(canvasWrap);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Reset / new game
+// ─────────────────────────────────────────────────────────────────────────────
 function reset() {
-  revealed  = new Set();
-  flagged   = new Set();
-  gameOver  = false;
-  dead      = false;
-  undoCount = 0;
-  undoStack = [];
-  offX  = W/2 - 6 * BASE_CELL;
-  offY  = H/2 - 6 * BASE_CELL;
-  zoom  = 1.0;
+  revealed   = new Set();
+  flagged    = new Set();
+  safeCells  = new Set();
+  gameOver   = false;
+  dead       = false;
+  firstClick = true;       // ← next reveal will create the safe zone
+  undoCount  = 0;
+  undoStack  = [];
+  zoom       = 1.0;
+  offX       = W / 2 - 6 * BASE_CELL;
+  offY       = H / 2 - 6 * BASE_CELL;
   setFace('normal');
   gameoverBanner.style.display = 'none';
   updateLCDs();
   render();
 }
 
-// ============================================================
-// Event handlers
-// ============================================================
+// ─────────────────────────────────────────────────────────────────────────────
+// Mouse events
+// ─────────────────────────────────────────────────────────────────────────────
 
-// Mousedown — start pan if Ctrl held or middle button
+// Pan start: Ctrl+left-drag  OR  middle-button drag
 canvas.addEventListener('mousedown', e => {
   if (e.button === 1 || e.ctrlKey) {
     panning = true;
@@ -635,6 +676,7 @@ canvas.addEventListener('mousedown', e => {
     canvas.classList.add('panning');
     e.preventDefault();
   }
+  if (e.button === 0 && !e.ctrlKey && !gameOver) setFace('scared');
 });
 
 canvas.addEventListener('mousemove', e => {
@@ -647,70 +689,149 @@ canvas.addEventListener('mousemove', e => {
   render();
 });
 
-function stopPan() {
-  panning = false;
-  canvas.classList.remove('panning');
-}
-canvas.addEventListener('mouseup',    stopPan);
+const stopPan = () => { panning = false; canvas.classList.remove('panning'); };
+canvas.addEventListener('mouseup', e => {
+  stopPan();
+  if (e.button === 0 && !dead) setFace('normal');
+});
 canvas.addEventListener('mouseleave', stopPan);
 
-// Left click — reveal
+// Left click → reveal
 canvas.addEventListener('click', e => {
   if (didPan) { didPan = false; return; }
-  if (e.ctrlKey) return; // was panning attempt
-  const rect = canvas.getBoundingClientRect();
-  const [cx, cy] = screenToCell(e.clientX - rect.left, e.clientY - rect.top);
+  if (e.ctrlKey) return;
+  const rect       = canvas.getBoundingClientRect();
+  const [cx, cy]   = screenToCell(e.clientX - rect.left, e.clientY - rect.top);
   reveal(cx, cy);
 });
 
-// Right click — flag
+// Right click → flag
 canvas.addEventListener('contextmenu', e => {
   e.preventDefault();
   if (didPan) return;
-  const rect = canvas.getBoundingClientRect();
+  const rect     = canvas.getBoundingClientRect();
   const [cx, cy] = screenToCell(e.clientX - rect.left, e.clientY - rect.top);
   toggleFlag(cx, cy);
 });
 
-// Mousedown scared face
-canvas.addEventListener('mousedown', e => {
-  if (e.button !== 0 || e.ctrlKey) return;
-  if (!gameOver) setFace('scared');
-});
-canvas.addEventListener('mouseup', e => {
-  if (e.button !== 0) return;
-  if (!dead) setFace('normal');
-});
-
-// Wheel — zoom
+// Scroll wheel → zoom (centred on cursor)
 canvas.addEventListener('wheel', e => {
   e.preventDefault();
   const rect   = canvas.getBoundingClientRect();
   const mx     = e.clientX - rect.left;
   const my     = e.clientY - rect.top;
-  const factor = e.deltaY < 0 ? 1.12 : 1/1.12;
+  const factor = e.deltaY < 0 ? 1.13 : 1 / 1.13;
   const nz     = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom * factor));
-  const scale  = nz / zoom;
-  offX = mx - scale * (mx - offX);
-  offY = my - scale * (my - offY);
-  zoom = nz;
+  const sc     = nz / zoom;
+  offX         = mx - sc * (mx - offX);
+  offY         = my - sc * (my - offY);
+  zoom         = nz;
   render();
 }, { passive: false });
 
-// Ctrl+Z
+// ─────────────────────────────────────────────────────────────────────────────
+// Touch events (mobile: 1-finger pan, 2-finger pinch-zoom, tap to reveal)
+// ─────────────────────────────────────────────────────────────────────────────
+let lastTouchDist = null;
+let lastTouchCx, lastTouchCy;
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (e.touches.length === 2) {
+    lastTouchDist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY,
+    );
+    lastTouchCx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    lastTouchCy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+  } else if (e.touches.length === 1) {
+    panning       = true;
+    didPan        = false;
+    panX0         = e.touches[0].clientX;
+    panY0         = e.touches[0].clientY;
+    offX0         = offX;
+    offY0         = offY;
+    lastTouchDist = null;
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (e.touches.length === 2 && lastTouchDist !== null) {
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY,
+    );
+    const cx   = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const cy   = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    const rect = canvas.getBoundingClientRect();
+    const mx   = cx - rect.left;
+    const my   = cy - rect.top;
+    const nz   = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom * (dist / lastTouchDist)));
+    const sc   = nz / zoom;
+    offX       = mx - sc * (mx - offX) + (cx - lastTouchCx);
+    offY       = my - sc * (my - offY) + (cy - lastTouchCy);
+    zoom       = nz;
+    lastTouchDist = dist;
+    lastTouchCx   = cx;
+    lastTouchCy   = cy;
+    render();
+  } else if (e.touches.length === 1 && panning) {
+    const dx = e.touches[0].clientX - panX0;
+    const dy = e.touches[0].clientY - panY0;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) didPan = true;
+    offX = offX0 + dx;
+    offY = offY0 + dy;
+    render();
+  }
+}, { passive: false });
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  // Single tap that didn't pan → reveal
+  if (e.changedTouches.length === 1 && !didPan && e.touches.length === 0) {
+    const t    = e.changedTouches[0];
+    const rect = canvas.getBoundingClientRect();
+    const [cx, cy] = screenToCell(t.clientX - rect.left, t.clientY - rect.top);
+    reveal(cx, cy);
+  }
+  panning       = false;
+  didPan        = false;
+  lastTouchDist = null;
+}, { passive: false });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Keyboard
+// ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
-  if (e.key === 'z' && e.ctrlKey) { e.preventDefault(); undo(); }
-  if (e.key === 'r' && e.ctrlKey) { e.preventDefault(); reset(); }
+  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo();  }
+  if (e.ctrlKey && e.key === 'r') { e.preventDefault(); reset(); }
 });
 
-// Buttons
 faceBtnEl.addEventListener('click', reset);
 undoBtnEl.addEventListener('click', undo);
 
-// ============================================================
-// Boot
-// ============================================================
-reset();
+// ─────────────────────────────────────────────────────────────────────────────
+// Boot – wait one animation frame so the layout is settled, then initialise
+// ─────────────────────────────────────────────────────────────────────────────
+requestAnimationFrame(() => {
+  const rect  = canvasWrap.getBoundingClientRect();
+  W           = canvas.width  = Math.floor(rect.width);
+  H           = canvas.height = Math.floor(rect.height);
+  revealed    = new Set();
+  flagged     = new Set();
+  safeCells   = new Set();
+  gameOver    = false;
+  dead        = false;
+  firstClick  = true;
+  undoCount   = 0;
+  undoStack   = [];
+  zoom        = 1.0;
+  offX        = W / 2 - 6 * BASE_CELL;
+  offY        = H / 2 - 6 * BASE_CELL;
+  updateLCDs();
+  render();
+});
 </script>
 </body>
 </html>
