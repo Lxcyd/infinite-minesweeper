@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Démineur Infini</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #008080;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+}
+
+#window {
+  background: #C0C0C0;
+  border: 3px solid;
+  border-color: #DFDFDF #404040 #404040 #DFDFDF;
+  box-shadow: 4px 4px 0 #000;
+  user-select: none;
+  min-width: 400px;
+}
+
+#titlebar {
+  background: #000080;
+  color: white;
+  padding: 3px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#titlebar-btns {
+  margin-left: auto;
+  display: flex;
+  gap: 2px;
+}
+
+.tb-btn {
+  width: 16px;
+  height: 14px;
+  background: #C0C0C0;
+  border: 1px solid;
+  border-color: #DFDFDF #404040 #404040 #DFDFDF;
+  font-size: 9px;
+  cursor: pointer;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Courier New';
+  line-height: 1;
+}
+
+.tb-btn:active {
+  border-color: #404040 #DFDFDF #DFDFDF #404040;
+}
+
+#header {
+  margin: 8px;
+  padding: 5px 8px;
+  border: 2px solid;
+  border-color: #808080 #DFDFDF #DFDFDF #808080;
+  background: #C0C0C0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lcd-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.lcd {
+  background: #300;
+  color: #FF2200;
+  font-family: 'Courier New', monospace;
+  font-size: 22px;
+  font-weight: bold;
+  padding: 3px 8px;
+  min-width: 60px;
+  text-align: right;
+  letter-spacing: 3px;
+  border: 2px solid;
+  border-color: #404040 #DFDFDF #DFDFDF #404040;
+  text-shadow: 0 0 4px #FF4400;
+}
+
+.lcd-label {
+  font-size: 10px;
+  color: #333;
+  font-family: 'Courier New';
+}
+
+#face-btn {
+  width: 38px;
+  height: 36px;
+  background: #C0C0C0;
+  border: 3px solid;
+  border-color: #DFDFDF #404040 #404040 #DFDFDF;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+#face-btn:active {
+  border-color: #404040 #DFDFDF #DFDFDF #404040;
+}
+
+#undo-btn {
+  width: 38px;
+  height: 20px;
+  background: #C0C0C0;
+  border: 2px solid;
+  border-color: #DFDFDF #404040 #404040 #DFDFDF;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-top: 4px;
+}
+
+#undo-btn:active {
+  border-color: #404040 #DFDFDF #DFDFDF #404040;
+}
+
+.center-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+#canvas-wrap {
+  margin: 0 8px 8px 8px;
+  border: 3px solid;
+  border-color: #808080 #DFDFDF #DFDFDF #808080;
+  overflow: hidden;
+  position: relative;
+  cursor: crosshair;
+}
+
+#canvas {
+  display: block;
+}
+
+#canvas.panning {
+  cursor: grab;
+}
+
+#statusbar {
+  padding: 2px 6px;
+  font-size: 10px;
+  color: #444;
+  display: flex;
+  gap: 12px;
+  border-top: 1px solid #808080;
+  background: #C0C0C0;
+  flex-wrap: wrap;
+}
+
+#statusbar span {
+  border-right: 1px solid #808080;
+  padding-right: 8px;
+}
+
+#statusbar span:last-child {
+  border-right: none;
+}
+
+#gameover-banner {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #C0C0C0;
+  border: 3px solid;
+  border-color: #DFDFDF #404040 #404040 #DFDFDF;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #CC0000;
+  text-align: center;
+  z-index: 10;
+  white-space: nowrap;
+  box-shadow: 4px 4px 0 #000;
+}
+</style>
+</head>
+<body>
+<div id="window">
+  <div id="titlebar">
+    💣 Démineur Infini
+    <div id="titlebar-btns">
+      <div class="tb-btn">_</div>
+      <div class="tb-btn">□</div>
+      <div class="tb-btn">✕</div>
+    </div>
+  </div>
+
+  <div id="header">
+    <div class="lcd-group">
+      <div class="lcd" id="flag-lcd">000</div>
+      <div class="lcd-label">🚩 Drapeaux</div>
+    </div>
+
+    <div class="center-controls">
+      <button id="face-btn" title="Nouveau jeu">🙂</button>
+      <button id="undo-btn" title="Annuler (Ctrl+Z)">↩</button>
+    </div>
+
+    <div class="lcd-group">
+      <div class="lcd" id="undo-lcd">000</div>
+      <div class="lcd-label">↩ Retours</div>
+    </div>
+  </div>
+
+  <div id="canvas-wrap">
+    <canvas id="canvas"></canvas>
+    <div id="gameover-banner"></div>
+  </div>
+
+  <div id="statusbar">
+    <span>Ctrl+Glisser: Déplacer</span>
+    <span>Molette: Zoom</span>
+    <span>🖱️ Gauche: Révéler</span>
+    <span>🖱️ Droit: Drapeau</span>
+    <span>Ctrl+Z: Annuler</span>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const flagLcd = document.getElementById('flag-lcd');
+const undoLcd = document.getElementById('undo-lcd');
+const faceBtnEl = document.getElementById('face-btn');
+const undoBtnEl = document.getElementById('undo-btn');
+const gameoverBanner = document.getElementById('gameover-banner');
+const canvasWrap = document.getElementById('canvas-wrap');
+
+// --- Config ---
+const BASE_CELL = 22;
+const MINE_PCT = 18;    // % chance of mine per cell
+const MAX_FLOOD = 8000; // max cells to reveal in one flood fill
+const MAX_UNDO  = 60;
+
+const W = 600, H = 440;
+canvas.width  = W;
+canvas.height = H;
+canvasWrap.style.width  = W + 'px';
+canvasWrap.style.height = H + 'px';
+
+// --- State ---
+let revealed, flagged, gameOver, dead, undoCount, undoStack;
+
+// --- View ---
+let offX, offY, zoom;
+const ZOOM_MIN = 0.25, ZOOM_MAX = 3.5;
+
+// --- Pan ---
+let panning = false, panX0, panY0, offX0, offY0;
+let didPan = false;
+
+// --- Colors ---
+const NUM_COLORS = [null,'#0000CC','#007700','#CC0000','#000077','#880000','#007777','#111111','#777777'];
+
+// ============================================================
+// Seeded deterministic mine placement
+// ============================================================
+function hashXY(x, y) {
+  // 32-bit integer hash
+  let h = Math.imul(x | 0, 0x9e3779b9) ^ Math.imul(y | 0, 0x6c62272e);
+  h ^= h >>> 16;
+  h  = Math.imul(h, 0x45d9f3b);
+  h ^= h >>> 16;
+  return h >>> 0;
+}
+
+function hasMine(x, y) {
+  return hashXY(x, y) % 100 < MINE_PCT;
+}
+
+function countMines(x, y) {
+  let n = 0;
+  for (let dy = -1; dy <= 1; dy++)
+    for (let dx = -1; dx <= 1; dx++)
+      if (!(dx===0&&dy===0) && hasMine(x+dx, y+dy)) n++;
+  return n;
+}
+
+// ============================================================
+// Helpers
+// ============================================================
+function K(x, y) { return x + ',' + y; }
+
+function cellSize() { return BASE_CELL * zoom; }
+
+function screenToCell(sx, sy) {
+  const cs = cellSize();
+  return [Math.floor((sx - offX) / cs), Math.floor((sy - offY) / cs)];
+}
+
+function cellToScreen(cx, cy) {
+  const cs = cellSize();
+  return [cx * cs + offX, cy * cs + offY];
+}
+
+// ============================================================
+// Undo / Snap
+// ============================================================
+function snap() {
+  undoStack.push({
+    revealed: new Set(revealed),
+    flagged:  new Set(flagged),
+    gameOver, dead
+  });
+  if (undoStack.length > MAX_UNDO) undoStack.shift();
+}
+
+function undo() {
+  if (!undoStack.length) return;
+  const s = undoStack.pop();
+  revealed  = s.revealed;
+  flagged   = s.flagged;
+  gameOver  = s.gameOver;
+  dead      = s.dead;
+  undoCount++;
+  if (!dead) setFace('normal');
+  gameoverBanner.style.display = 'none';
+  updateLCDs();
+  render();
+}
+
+// ============================================================
+// Actions
+// ============================================================
+function reveal(x, y) {
+  if (gameOver) return;
+  const k = K(x, y);
+  if (revealed.has(k) || flagged.has(k)) return;
+
+  snap();
+  setFace('normal');
+
+  if (hasMine(x, y)) {
+    revealed.add(k);
+    dead = true;
+    gameOver = true;
+    setFace('dead');
+    showGameOver('💥 BOOM ! Utilise ↩ pour revenir en arrière');
+    updateLCDs();
+    render();
+    return;
+  }
+
+  // BFS flood fill
+  const queue = [[x, y]];
+  const seen  = new Set([k]);
+  let count = 0;
+
+  while (queue.length && count < MAX_FLOOD) {
+    const [cx, cy] = queue.shift();
+    const ck = K(cx, cy);
+    if (!revealed.has(ck)) { revealed.add(ck); count++; }
+
+    if (countMines(cx, cy) === 0) {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx===0 && dy===0) continue;
+          const nx = cx+dx, ny = cy+dy;
+          const nk = K(nx, ny);
+          if (!seen.has(nk) && !hasMine(nx, ny) && !flagged.has(nk)) {
+            seen.add(nk);
+            queue.push([nx, ny]);
+          }
+        }
+      }
+    }
+  }
+
+  updateLCDs();
+  render();
+}
+
+function toggleFlag(x, y) {
+  if (gameOver) return;
+  const k = K(x, y);
+  if (revealed.has(k)) return;
+
+  snap();
+
+  if (flagged.has(k)) flagged.delete(k);
+  else                flagged.add(k);
+
+  updateLCDs();
+  render();
+}
+
+// ============================================================
+// UI helpers
+// ============================================================
+function setFace(f) {
+  const faces = { normal:'🙂', dead:'😵', scared:'😮' };
+  faceBtnEl.textContent = faces[f] || '🙂';
+}
+
+function showGameOver(msg) {
+  gameoverBanner.textContent = msg;
+  gameoverBanner.style.display = 'block';
+}
+
+function updateLCDs() {
+  flagLcd.textContent = String(Math.min(flagged.size, 999)).padStart(3, '0');
+  undoLcd.textContent = String(Math.min(undoCount, 999)).padStart(3, '0');
+}
+
+// ============================================================
+// Rendering
+// ============================================================
+function render() {
+  const cs = cellSize();
+  ctx.clearRect(0, 0, W, H);
+
+  // Fill background with a checker-like dark pattern outside cells
+  ctx.fillStyle = '#7b7b7b';
+  ctx.fillRect(0, 0, W, H);
+
+  const x0 = Math.floor(-offX / cs) - 1;
+  const y0 = Math.floor(-offY / cs) - 1;
+  const x1 = Math.ceil((W - offX) / cs) + 1;
+  const y1 = Math.ceil((H - offY) / cs) + 1;
+
+  for (let cy = y0; cy <= y1; cy++) {
+    for (let cx = x0; cx <= x1; cx++) {
+      drawCell(cx, cy, cs);
+    }
+  }
+}
+
+function drawCell(cx, cy, cs) {
+  const k = K(cx, cy);
+  const [sx, sy] = cellToScreen(cx, cy);
+  if (sx+cs < 0 || sx > W || sy+cs < 0 || sy > H) return;
+
+  const isRev  = revealed.has(k);
+  const isFl   = flagged.has(k);
+  const isMine = hasMine(cx, cy);
+
+  if (isRev) {
+    drawRevealedCell(sx, sy, cs, isMine, isFl, cx, cy);
+  } else {
+    drawHiddenCell(sx, sy, cs, isFl, isMine);
+  }
+}
+
+function drawHiddenCell(sx, sy, cs, isFl, isMine) {
+  const b = Math.max(1, cs * 0.08);
+
+  // Base fill
+  ctx.fillStyle = '#C0C0C0';
+  ctx.fillRect(sx, sy, cs, cs);
+
+  // Top & left highlights
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(sx, sy, cs, b);
+  ctx.fillRect(sx, sy, b, cs);
+
+  // Bottom & right outer shadow
+  ctx.fillStyle = '#808080';
+  ctx.fillRect(sx, sy + cs - b*2, cs, b);
+  ctx.fillRect(sx + cs - b*2, sy, b, cs);
+
+  // Bottom & right dark shadow
+  ctx.fillStyle = '#404040';
+  ctx.fillRect(sx, sy + cs - b, cs, b);
+  ctx.fillRect(sx + cs - b, sy, b, cs);
+
+  if (isFl) {
+    drawFlag(sx, sy, cs);
+  } else if (gameOver && dead && isMine) {
+    // Reveal untriggered mines after death
+    ctx.fillStyle = '#C0C0C0';
+    drawMine(sx, sy, cs, false);
+  }
+}
+
+function drawRevealedCell(sx, sy, cs, isMine, isFl, cx, cy) {
+  const b = Math.max(1, cs * 0.04);
+
+  if (isMine && dead) {
+    ctx.fillStyle = '#FF4444';
+  } else {
+    ctx.fillStyle = '#BEBEBE';
+  }
+  ctx.fillRect(sx, sy, cs, cs);
+
+  // Thin sunken border
+  ctx.fillStyle = '#808080';
+  ctx.fillRect(sx, sy, cs, b);
+  ctx.fillRect(sx, sy, b, cs);
+  ctx.fillStyle = '#DFDFDF';
+  ctx.fillRect(sx, sy + cs - b, cs, b);
+  ctx.fillRect(sx + cs - b, sy, b, cs);
+
+  if (isMine) {
+    drawMine(sx, sy, cs, dead);
+  } else {
+    const n = countMines(cx, cy);
+    if (n > 0) {
+      ctx.fillStyle = NUM_COLORS[n] || '#000';
+      const fs = Math.max(8, Math.floor(cs * 0.62));
+      ctx.font = `bold ${fs}px "Courier New"`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(n, sx + cs/2, sy + cs/2 + 1);
+    }
+  }
+
+  // Wrong flag (flagged but not mine — shown on game over)
+  if (isFl && gameOver && !isMine) drawWrongFlag(sx, sy, cs);
+}
+
+function drawFlag(sx, sy, cs) {
+  const p   = cs * 0.15;
+  const mid = cs / 2;
+  const fw  = Math.max(1.5, cs * 0.08);
+
+  // Pole
+  ctx.fillStyle = '#111';
+  ctx.fillRect(sx + mid - fw/2, sy + p, fw, cs * 0.7);
+
+  // Flag (triangle)
+  ctx.fillStyle = '#DD0000';
+  ctx.beginPath();
+  ctx.moveTo(sx + mid + fw/2, sy + p + 1);
+  ctx.lineTo(sx + cs * 0.78, sy + cs * 0.35);
+  ctx.lineTo(sx + mid + fw/2, sy + cs * 0.52);
+  ctx.closePath();
+  ctx.fill();
+
+  // Base
+  ctx.fillStyle = '#111';
+  const bw = cs * 0.45, bh = Math.max(1.5, cs * 0.08);
+  ctx.fillRect(sx + (cs - bw)/2, sy + cs - p - bh, bw, bh);
+}
+
+function drawMine(sx, sy, cs, isHit) {
+  const mx = sx + cs/2, my = sy + cs/2;
+  const r  = cs * 0.28;
+  const lw = Math.max(1, r * 0.22);
+
+  // Spikes
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth   = lw;
+  for (let i = 0; i < 8; i++) {
+    const a = (i * Math.PI) / 4;
+    ctx.beginPath();
+    ctx.moveTo(mx + Math.cos(a)*r*0.75, my + Math.sin(a)*r*0.75);
+    ctx.lineTo(mx + Math.cos(a)*r*1.45, my + Math.sin(a)*r*1.45);
+    ctx.stroke();
+  }
+
+  // Body
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.arc(mx, my, r, 0, Math.PI*2);
+  ctx.fill();
+
+  // Shine
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.beginPath();
+  ctx.arc(mx - r*0.28, my - r*0.3, r*0.18, 0, Math.PI*2);
+  ctx.fill();
+}
+
+function drawWrongFlag(sx, sy, cs) {
+  const p  = cs * 0.18;
+  const lw = Math.max(2, cs * 0.1);
+  ctx.strokeStyle = '#FF0000';
+  ctx.lineWidth   = lw;
+  ctx.beginPath();
+  ctx.moveTo(sx+p, sy+p);   ctx.lineTo(sx+cs-p, sy+cs-p);
+  ctx.moveTo(sx+cs-p, sy+p); ctx.lineTo(sx+p, sy+cs-p);
+  ctx.stroke();
+}
+
+// ============================================================
+// Reset
+// ============================================================
+function reset() {
+  revealed  = new Set();
+  flagged   = new Set();
+  gameOver  = false;
+  dead      = false;
+  undoCount = 0;
+  undoStack = [];
+  offX  = W/2 - 6 * BASE_CELL;
+  offY  = H/2 - 6 * BASE_CELL;
+  zoom  = 1.0;
+  setFace('normal');
+  gameoverBanner.style.display = 'none';
+  updateLCDs();
+  render();
+}
+
+// ============================================================
+// Event handlers
+// ============================================================
+
+// Mousedown — start pan if Ctrl held or middle button
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 1 || e.ctrlKey) {
+    panning = true;
+    didPan  = false;
+    panX0   = e.clientX;
+    panY0   = e.clientY;
+    offX0   = offX;
+    offY0   = offY;
+    canvas.classList.add('panning');
+    e.preventDefault();
+  }
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (!panning) return;
+  const dx = e.clientX - panX0;
+  const dy = e.clientY - panY0;
+  if (Math.abs(dx) > 2 || Math.abs(dy) > 2) didPan = true;
+  offX = offX0 + dx;
+  offY = offY0 + dy;
+  render();
+});
+
+function stopPan() {
+  panning = false;
+  canvas.classList.remove('panning');
+}
+canvas.addEventListener('mouseup',    stopPan);
+canvas.addEventListener('mouseleave', stopPan);
+
+// Left click — reveal
+canvas.addEventListener('click', e => {
+  if (didPan) { didPan = false; return; }
+  if (e.ctrlKey) return; // was panning attempt
+  const rect = canvas.getBoundingClientRect();
+  const [cx, cy] = screenToCell(e.clientX - rect.left, e.clientY - rect.top);
+  reveal(cx, cy);
+});
+
+// Right click — flag
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault();
+  if (didPan) return;
+  const rect = canvas.getBoundingClientRect();
+  const [cx, cy] = screenToCell(e.clientX - rect.left, e.clientY - rect.top);
+  toggleFlag(cx, cy);
+});
+
+// Mousedown scared face
+canvas.addEventListener('mousedown', e => {
+  if (e.button !== 0 || e.ctrlKey) return;
+  if (!gameOver) setFace('scared');
+});
+canvas.addEventListener('mouseup', e => {
+  if (e.button !== 0) return;
+  if (!dead) setFace('normal');
+});
+
+// Wheel — zoom
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  const rect   = canvas.getBoundingClientRect();
+  const mx     = e.clientX - rect.left;
+  const my     = e.clientY - rect.top;
+  const factor = e.deltaY < 0 ? 1.12 : 1/1.12;
+  const nz     = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom * factor));
+  const scale  = nz / zoom;
+  offX = mx - scale * (mx - offX);
+  offY = my - scale * (my - offY);
+  zoom = nz;
+  render();
+}, { passive: false });
+
+// Ctrl+Z
+document.addEventListener('keydown', e => {
+  if (e.key === 'z' && e.ctrlKey) { e.preventDefault(); undo(); }
+  if (e.key === 'r' && e.ctrlKey) { e.preventDefault(); reset(); }
+});
+
+// Buttons
+faceBtnEl.addEventListener('click', reset);
+undoBtnEl.addEventListener('click', undo);
+
+// ============================================================
+// Boot
+// ============================================================
+reset();
+</script>
+</body>
+</html>
