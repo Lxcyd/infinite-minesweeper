@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Démineur Infini • Moderne</title>
+<title>♾️ Démineur Infini</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -37,7 +37,6 @@ html, body {
   color: var(--text-primary);
 }
 
-/* Animated background */
 #bg-canvas {
   position: fixed;
   inset: 0;
@@ -53,7 +52,6 @@ html, body {
   z-index: 1;
 }
 
-/* Header */
 #header {
   flex: 0 0 auto;
   backdrop-filter: blur(20px);
@@ -170,7 +168,6 @@ html, body {
   font-size: 18px;
 }
 
-/* Main game area */
 #game-container {
   flex: 1 1 0;
   display: flex;
@@ -195,7 +192,42 @@ html, body {
   cursor: grab;
 }
 
-/* Sidebar */
+#mobile-controls {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  gap: 16px;
+}
+
+.mobile-mode-btn {
+  width: 70px;
+  height: 70px;
+  backdrop-filter: blur(20px);
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-mode-btn:active {
+  transform: scale(0.95);
+}
+
+.mobile-mode-btn.active {
+  border-color: var(--accent-primary);
+  background: rgba(0, 212, 255, 0.2);
+  box-shadow: 0 0 24px rgba(0, 212, 255, 0.5);
+}
+
 #sidebar {
   flex: 0 0 auto;
   width: 320px;
@@ -207,6 +239,28 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  transition: width 0.3s ease, padding 0.3s ease;
+}
+
+#sidebar.collapsed {
+  width: 60px;
+  padding: 24px 12px;
+}
+
+#sidebar.collapsed .panel-content {
+  display: none;
+}
+
+#sidebar.collapsed .panel-title span:not(.panel-icon) {
+  display: none;
+}
+
+#sidebar-toggle-btn {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  margin-bottom: 12px;
+  z-index: 10;
 }
 
 .panel {
@@ -215,6 +269,11 @@ html, body {
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 20px;
+  transition: all 0.3s ease;
+}
+
+#sidebar.collapsed .panel {
+  padding: 12px;
 }
 
 .panel-title {
@@ -227,6 +286,19 @@ html, body {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+#sidebar.collapsed .panel-title {
+  justify-content: center;
+  margin-bottom: 0;
+}
+
+.panel-icon {
+  font-size: 18px;
+}
+
+.panel-content {
+  transition: opacity 0.3s ease;
 }
 
 .input-group {
@@ -302,7 +374,6 @@ html, body {
   font-weight: 600;
 }
 
-/* Game over modal */
 #modal-overlay {
   display: none;
   position: fixed;
@@ -357,9 +428,9 @@ html, body {
   display: flex;
   gap: 12px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
-/* Toast notifications */
 #toast-container {
   position: fixed;
   top: 80px;
@@ -417,7 +488,6 @@ html, body {
   color: var(--accent-primary);
 }
 
-/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -445,7 +515,6 @@ html, body {
   }
 }
 
-/* Mobile responsive */
 @media (max-width: 768px) {
   #header {
     flex-wrap: wrap;
@@ -457,6 +526,11 @@ html, body {
     order: 3;
     width: 100%;
     justify-content: space-between;
+  }
+
+  .stat-card {
+    min-width: auto;
+    flex: 1;
   }
 
   #sidebar {
@@ -472,27 +546,28 @@ html, body {
     right: 0;
   }
 
+  #sidebar.collapsed {
+    right: -100%;
+  }
+
   .btn-group {
     flex-wrap: wrap;
   }
+
+  #mobile-controls {
+    display: flex;
+  }
+
+  #toast-container {
+    right: 12px;
+    left: 12px;
+  }
+
+  .toast {
+    min-width: auto;
+  }
 }
 
-/* Loading spinner */
-.spinner {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: var(--accent-primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -513,38 +588,33 @@ html, body {
 </head>
 <body>
 
-<!-- Animated background -->
 <canvas id="bg-canvas"></canvas>
 
-<!-- Toast container -->
 <div id="toast-container"></div>
 
-<!-- Modal -->
 <div id="modal-overlay">
   <div class="modal">
     <div class="modal-icon" id="modal-icon">💥</div>
     <div class="modal-title" id="modal-title">Boom!</div>
     <div class="modal-text" id="modal-text">Vous avez touché une mine</div>
-    <div class="modal-actions">
-      <button class="btn btn-primary" id="modal-undo">
-        <span class="btn-icon">↩</span>
-        Annuler
+    <div class="modal-actions" id="modal-actions">
+      <button class="btn btn-primary" id="modal-confirm">
+        <span class="btn-icon">✓</span>
+        Confirmer
       </button>
-      <button class="btn" id="modal-new">
-        <span class="btn-icon">🔄</span>
-        Nouveau jeu
+      <button class="btn" id="modal-cancel">
+        <span class="btn-icon">✕</span>
+        Annuler
       </button>
     </div>
   </div>
 </div>
 
-<!-- Main app -->
 <div id="app">
   
-  <!-- Header -->
   <div id="header">
     <div id="logo">
-      <span id="logo-icon">💎</span>
+      <span id="logo-icon">♾️</span>
       <span>Démineur Infini</span>
     </div>
 
@@ -562,10 +632,10 @@ html, body {
         Sauvegarder
       </button>
       <button class="btn" id="export-btn" title="Exporter">
-        <span class="btn-icon">📋</span>
-        Copier
+        <span class="btn-icon">📤</span>
+        Export
       </button>
-      <button class="btn" id="sidebar-toggle" style="display: none;">
+      <button class="btn" id="sidebar-toggle-mobile">
         <span class="btn-icon">⚙️</span>
       </button>
     </div>
@@ -580,107 +650,128 @@ html, body {
         <div class="stat-value" id="undo-count">0</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">📍 Cases</div>
+        <div class="stat-label">📍 Cellules</div>
         <div class="stat-value" id="revealed-count">0</div>
       </div>
     </div>
   </div>
 
-  <!-- Game container -->
   <div id="game-container">
     <div id="canvas-wrap">
       <canvas id="canvas"></canvas>
     </div>
 
-    <!-- Sidebar -->
+    <div id="mobile-controls">
+      <button class="mobile-mode-btn active" id="mobile-reveal" title="Mode révélation">
+        💡
+      </button>
+      <button class="mobile-mode-btn" id="mobile-flag" title="Mode drapeau">
+        🚩
+      </button>
+    </div>
+
     <div id="sidebar">
+      <button class="btn" id="sidebar-toggle-btn">
+        <span class="btn-icon" id="sidebar-toggle-icon">◀</span>
+      </button>
+
       <div class="panel">
         <div class="panel-title">
-          <span>🎲</span>
+          <span class="panel-icon">🎲</span>
           <span>Seed & Génération</span>
         </div>
         
-        <div class="input-group">
-          <label for="seed-input">Seed (laisser vide pour aléatoire)</label>
-          <input type="text" id="seed-input" placeholder="Ex: minecraft123">
-        </div>
+        <div class="panel-content">
+          <div class="input-group">
+            <label for="seed-input">Seed (laisser vide pour aléatoire)</label>
+            <input type="text" id="seed-input" placeholder="Ex: minecraft123">
+          </div>
 
-        <button class="btn btn-small" id="apply-seed-btn" style="width: 100%;">
-          <span class="btn-icon">✨</span>
-          Appliquer seed
-        </button>
+          <button class="btn btn-small" id="apply-seed-btn" style="width: 100%;">
+            <span class="btn-icon">✨</span>
+            Appliquer seed
+          </button>
 
-        <div class="help-text">
-          La seed permet de générer toujours la même carte. Partagez-la avec vos amis!
-        </div>
+          <div class="help-text">
+            La seed permet de générer toujours la même carte. Partagez-la avec vos amis!
+          </div>
 
-        <div class="input-group" style="margin-top: 16px;">
-          <label>Seed actuelle</label>
-          <input type="text" id="current-seed" readonly style="opacity: 0.7;">
+          <div class="input-group" style="margin-top: 16px;">
+            <label>Seed actuelle</label>
+            <input type="text" id="current-seed" readonly style="opacity: 0.7;">
+          </div>
         </div>
       </div>
 
       <div class="panel">
         <div class="panel-title">
-          <span>💾</span>
+          <span class="panel-icon">💾</span>
           <span>Import / Export</span>
         </div>
 
-        <div class="input-group">
-          <label for="import-input">Coller un code de partie</label>
-          <input type="text" id="import-input" placeholder="Collez le code ici...">
-        </div>
+        <div class="panel-content">
+          <div class="input-group">
+            <label for="import-input">Coller un code de partie</label>
+            <input type="text" id="import-input" placeholder="Collez le code ici...">
+          </div>
 
-        <button class="btn btn-small" id="import-btn" style="width: 100%;">
-          <span class="btn-icon">📥</span>
-          Importer partie
-        </button>
+          <button class="btn btn-small" id="import-btn" style="width: 100%;">
+            <span class="btn-icon">📥</span>
+            Importer partie
+          </button>
 
-        <div class="help-text">
-          Le code contient la seed, les cases révélées et les drapeaux.
+          <div class="help-text">
+            Le code contient la seed, les cellules révélées et les drapeaux.
+          </div>
         </div>
       </div>
 
       <div class="panel">
         <div class="panel-title">
-          <span>⌨️</span>
+          <span class="panel-icon">⌨️</span>
           <span>Raccourcis</span>
         </div>
 
-        <div class="shortcut-list">
-          <div class="shortcut-item">
-            <span>Révéler case</span>
-            <span class="shortcut-key">Clic gauche</span>
-          </div>
-          <div class="shortcut-item">
-            <span>Placer drapeau</span>
-            <span class="shortcut-key">Clic droit</span>
-          </div>
-          <div class="shortcut-item">
-            <span>Déplacer vue</span>
-            <span class="shortcut-key">Ctrl + Glisser</span>
-          </div>
-          <div class="shortcut-item">
-            <span>Zoom</span>
-            <span class="shortcut-key">Molette</span>
-          </div>
-          <div class="shortcut-item">
-            <span>Annuler</span>
-            <span class="shortcut-key">Ctrl + Z</span>
-          </div>
-          <div class="shortcut-item">
-            <span>Nouveau jeu</span>
-            <span class="shortcut-key">Ctrl + R</span>
-          </div>
-          <div class="shortcut-item">
-            <span>Sauvegarder</span>
-            <span class="shortcut-key">Ctrl + S</span>
+        <div class="panel-content">
+          <div class="shortcut-list">
+            <div class="shortcut-item">
+              <span>Révéler case</span>
+              <span class="shortcut-key">Clic gauche</span>
+            </div>
+            <div class="shortcut-item">
+              <span>Placer drapeau</span>
+              <span class="shortcut-key">Clic droit</span>
+            </div>
+            <div class="shortcut-item">
+              <span>Chord (auto)</span>
+              <span class="shortcut-key">Clic sur numéro</span>
+            </div>
+            <div class="shortcut-item">
+              <span>Déplacer vue</span>
+              <span class="shortcut-key">Ctrl + Glisser</span>
+            </div>
+            <div class="shortcut-item">
+              <span>Zoom</span>
+              <span class="shortcut-key">Molette</span>
+            </div>
+            <div class="shortcut-item">
+              <span>Annuler</span>
+              <span class="shortcut-key">Ctrl + Z</span>
+            </div>
+            <div class="shortcut-item">
+              <span>Nouveau jeu</span>
+              <span class="shortcut-key">Ctrl + R</span>
+            </div>
+            <div class="shortcut-item">
+              <span>Sauvegarder</span>
+              <span class="shortcut-key">Ctrl + S</span>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="help-text" style="padding: 16px; background: rgba(0, 212, 255, 0.1); border-radius: 12px; border: 1px solid rgba(0, 212, 255, 0.2);">
-        💡 <strong>Astuce :</strong> Quand vous révélez une case avec 1 mine adjacente, toutes les cases autour sont automatiquement révélées pour accélérer le jeu!
+        💡 <strong>Astuce Chord :</strong> Quand un numéro est révélé avec le bon nombre de drapeaux autour, cliquez dessus pour révéler automatiquement toutes les cellules sûres adjacentes ! C'est une technique pro pour gagner du temps.
       </div>
     </div>
   </div>
@@ -688,33 +779,30 @@ html, body {
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════════════════════════
-// CONFIGURATION & CONSTANTS
-// ═══════════════════════════════════════════════════════════════════════════
-
 const CONFIG = {
-  BASE_CELL: 24,           // Cell size in pixels
-  MINE_PCT: 18,            // Percentage of mines
-  SAFE_RADIUS: 4,          // Safe zone radius on first click
-  MAX_FLOOD: 30000,        // BFS limit
-  MAX_UNDO: 100,           // Max undo steps
-  ZOOM_MIN: 0.2,
+  BASE_CELL: 24,
+  MINE_PCT: 18,
+  SAFE_RADIUS: 4,
+  MAX_FLOOD: 30000,
+  MAX_UNDO: 100,
+  ZOOM_MIN: 0.15,
   ZOOM_MAX: 5,
-  AUTO_SAVE_INTERVAL: 5000, // Auto-save every 5s
-  RENDER_CULLING: 2,       // Extra cells to render outside viewport
+  ZOOM_TEXTURE_THRESHOLD: 0.4,
+  AUTO_SAVE_INTERVAL: 10000,
+  RENDER_CULLING: 2,
 };
 
 const COLORS = {
   numbers: [
     null,
-    '#0066ff',  // 1 - blue
-    '#00aa44',  // 2 - green
-    '#ff3344',  // 3 - red
-    '#0033aa',  // 4 - dark blue
-    '#aa1100',  // 5 - dark red
-    '#00aaaa',  // 6 - cyan
-    '#222222',  // 7 - black
-    '#888888',  // 8 - gray
+    '#2196F3',
+    '#4CAF50',
+    '#F44336',
+    '#9C27B0',
+    '#FF9800',
+    '#00BCD4',
+    '#795548',
+    '#9E9E9E',
   ],
   cell: {
     revealed: '#2a3142',
@@ -726,10 +814,6 @@ const COLORS = {
   mine: '#ff0044',
   flag: '#ffaa00',
 };
-
-// ═══════════════════════════════════════════════════════════════════════════
-// DOM ELEMENTS
-// ═══════════════════════════════════════════════════════════════════════════
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
@@ -749,22 +833,24 @@ const saveBtn = document.getElementById('save-btn');
 const exportBtn = document.getElementById('export-btn');
 const applySeedBtn = document.getElementById('apply-seed-btn');
 const importBtn = document.getElementById('import-btn');
-const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebarToggleMobile = document.getElementById('sidebar-toggle-mobile');
+const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+const sidebarToggleIcon = document.getElementById('sidebar-toggle-icon');
 const sidebar = document.getElementById('sidebar');
 
 const modalOverlay = document.getElementById('modal-overlay');
 const modalIcon = document.getElementById('modal-icon');
 const modalTitle = document.getElementById('modal-title');
 const modalText = document.getElementById('modal-text');
-const modalUndo = document.getElementById('modal-undo');
-const modalNew = document.getElementById('modal-new');
+const modalActions = document.getElementById('modal-actions');
+const modalConfirm = document.getElementById('modal-confirm');
+const modalCancel = document.getElementById('modal-cancel');
+
+const mobileRevealBtn = document.getElementById('mobile-reveal');
+const mobileFlagBtn = document.getElementById('mobile-flag');
 
 const canvasWrap = document.getElementById('canvas-wrap');
 const toastContainer = document.getElementById('toast-container');
-
-// ═══════════════════════════════════════════════════════════════════════════
-// GAME STATE
-// ═══════════════════════════════════════════════════════════════════════════
 
 let gameState = {
   seed: '',
@@ -779,11 +865,8 @@ let gameState = {
   undoCount: 0,
   undoStack: [],
   revealedCount: 0,
+  mobileMode: 'reveal',
 };
-
-// ═══════════════════════════════════════════════════════════════════════════
-// VIEW STATE
-// ═══════════════════════════════════════════════════════════════════════════
 
 let viewState = {
   W: 0,
@@ -799,11 +882,8 @@ let viewState = {
   didPan: false,
   hoverCell: null,
   dirtyRender: true,
+  hiddenTexture: null,
 };
-
-// ═══════════════════════════════════════════════════════════════════════════
-// SEEDED RANDOM NUMBER GENERATOR (Mulberry32)
-// ═══════════════════════════════════════════════════════════════════════════
 
 class SeededRandom {
   constructor(seed) {
@@ -825,10 +905,6 @@ class SeededRandom {
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
   }
 
-  nextInt(min, max) {
-    return Math.floor(this.next() * (max - min + 1)) + min;
-  }
-
   hashXY(x, y) {
     let h = Math.imul(x | 0, 0x9e3779b9) ^ Math.imul(y | 0, 0x6c62272e);
     h ^= this.state;
@@ -838,10 +914,6 @@ class SeededRandom {
     return (h >>> 0) % 100;
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// MINE GENERATION
-// ═══════════════════════════════════════════════════════════════════════════
 
 function hasMine(x, y) {
   const k = key(x, y);
@@ -860,12 +932,7 @@ function countMines(x, y) {
   return count;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// HELPER FUNCTIONS
-// ═══════════════════════════════════════════════════════════════════════════
-
 const key = (x, y) => `${x},${y}`;
-const parseKey = (k) => k.split(',').map(Number);
 const cellSize = () => CONFIG.BASE_CELL * viewState.zoom;
 
 function screenToCell(sx, sy) {
@@ -892,10 +959,6 @@ function generateRandomSeed() {
   }
   return seed;
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// UNDO SYSTEM
-// ═══════════════════════════════════════════════════════════════════════════
 
 function snapshot() {
   gameState.undoStack.push({
@@ -942,10 +1005,6 @@ function undo() {
   showToast('success', 'Action annulée', 'Retour en arrière effectué');
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SAFE ZONE (First click)
-// ═══════════════════════════════════════════════════════════════════════════
-
 function buildSafeZone(ox, oy) {
   gameState.safeCells.clear();
   for (let dy = -CONFIG.SAFE_RADIUS; dy <= CONFIG.SAFE_RADIUS; dy++) {
@@ -955,17 +1014,18 @@ function buildSafeZone(ox, oy) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// CORE GAME ACTIONS
-// ═══════════════════════════════════════════════════════════════════════════
-
 function reveal(x, y) {
   if (gameState.gameOver) return;
 
   const k = key(x, y);
-  if (gameState.revealed.has(k) || gameState.flagged.has(k)) return;
+  
+  if (gameState.revealed.has(k)) {
+    chord(x, y);
+    return;
+  }
+  
+  if (gameState.flagged.has(k)) return;
 
-  // First click: create safe zone
   if (gameState.firstClick) {
     snapshot();
     buildSafeZone(x, y);
@@ -974,7 +1034,6 @@ function reveal(x, y) {
     snapshot();
   }
 
-  // Hit a mine
   if (hasMine(x, y)) {
     gameState.revealed.add(k);
     gameState.revealedCount++;
@@ -989,7 +1048,6 @@ function reveal(x, y) {
     return;
   }
 
-  // BFS flood fill
   const queue = [[x, y]];
   const seen = new Set([k]);
   let count = 0;
@@ -1006,26 +1064,7 @@ function reveal(x, y) {
 
     const mineCount = countMines(cx, cy);
 
-    // Auto-reveal neighbors for cells with 1 adjacent mine
-    if (mineCount === 1) {
-      for (let dy = -1; dy <= 1; dy++) {
-        for (let dx = -1; dx <= 1; dx++) {
-          if (dx === 0 && dy === 0) continue;
-          const nx = cx + dx;
-          const ny = cy + dy;
-          const nk = key(nx, ny);
-          
-          if (!gameState.revealed.has(nk) && !gameState.flagged.has(nk) && !hasMine(nx, ny)) {
-            if (!seen.has(nk)) {
-              seen.add(nk);
-              queue.push([nx, ny]);
-            }
-          }
-        }
-      }
-    }
-    // Propagate through empty cells (0 adjacent mines)
-    else if (mineCount === 0) {
+    if (mineCount === 0) {
       for (let dy = -1; dy <= 1; dy++) {
         for (let dx = -1; dx <= 1; dx++) {
           if (dx === 0 && dy === 0) continue;
@@ -1047,6 +1086,41 @@ function reveal(x, y) {
   requestRender();
 }
 
+function chord(x, y) {
+  const k = key(x, y);
+  if (!gameState.revealed.has(k) || hasMine(x, y)) return;
+
+  const mineCount = countMines(x, y);
+  if (mineCount === 0) return;
+
+  let flagCount = 0;
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      if (dx === 0 && dy === 0) continue;
+      if (gameState.flagged.has(key(x + dx, y + dy))) {
+        flagCount++;
+      }
+    }
+  }
+
+  if (flagCount === mineCount) {
+    snapshot();
+    
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        const nx = x + dx;
+        const ny = y + dy;
+        const nk = key(nx, ny);
+        
+        if (!gameState.revealed.has(nk) && !gameState.flagged.has(nk)) {
+          reveal(nx, ny);
+        }
+      }
+    }
+  }
+}
+
 function toggleFlag(x, y) {
   if (gameState.gameOver) return;
 
@@ -1066,10 +1140,6 @@ function toggleFlag(x, y) {
   requestRender();
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// RENDERING (Optimized with culling)
-// ═══════════════════════════════════════════════════════════════════════════
-
 let renderQueued = false;
 
 function requestRender() {
@@ -1082,36 +1152,71 @@ function requestRender() {
   }
 }
 
+function createHiddenTexture() {
+  const size = CONFIG.BASE_CELL;
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = size;
+  tempCanvas.height = size;
+  const tempCtx = tempCanvas.getContext('2d');
+
+  const padding = 1;
+  
+  tempCtx.fillStyle = COLORS.cell.hidden;
+  tempCtx.fillRect(padding, padding, size - padding * 2, size - padding * 2);
+
+  tempCtx.fillStyle = COLORS.cell.borderLight;
+  tempCtx.fillRect(padding, padding, size - padding * 2, 2);
+  tempCtx.fillRect(padding, padding, 2, size - padding * 2);
+
+  return tempCanvas;
+}
+
 function render() {
   if (!viewState.dirtyRender) return;
 
   const c = cellSize();
   const { W, H, offX, offY } = viewState;
 
-  // Clear canvas
   ctx.fillStyle = COLORS.cell.border;
   ctx.fillRect(0, 0, W, H);
 
-  // Calculate visible cell range with culling margin
   const margin = CONFIG.RENDER_CULLING;
   const x0 = Math.floor(-offX / c) - margin;
   const y0 = Math.floor(-offY / c) - margin;
   const x1 = Math.ceil((W - offX) / c) + margin;
   const y1 = Math.ceil((H - offY) / c) + margin;
 
-  // Batch rendering for better performance
-  for (let cy = y0; cy <= y1; cy++) {
-    for (let cx = x0; cx <= x1; cx++) {
-      drawCell(cx, cy, c);
+  const useTexture = viewState.zoom < CONFIG.ZOOM_TEXTURE_THRESHOLD;
+  
+  if (useTexture) {
+    if (!viewState.hiddenTexture) {
+      viewState.hiddenTexture = createHiddenTexture();
+    }
+    
+    ctx.fillStyle = COLORS.cell.hidden;
+    ctx.fillRect(0, 0, W, H);
+    
+    for (let cy = y0; cy <= y1; cy++) {
+      for (let cx = x0; cx <= x1; cx++) {
+        const k = key(cx, cy);
+        if (gameState.revealed.has(k) || gameState.flagged.has(k)) {
+          drawCell(cx, cy, c);
+        }
+      }
+    }
+  } else {
+    for (let cy = y0; cy <= y1; cy++) {
+      for (let cx = x0; cx <= x1; cx++) {
+        drawCell(cx, cy, c);
+      }
     }
   }
 
-  // Draw hover highlight
-  if (viewState.hoverCell && !gameState.gameOver) {
+  if (viewState.hoverCell && !gameState.gameOver && !useTexture) {
     const [hx, hy] = viewState.hoverCell;
     const [sx, sy] = cellToScreen(hx, hy);
     ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = Math.max(2, c * 0.08);
     ctx.strokeRect(sx, sy, c, c);
   }
 
@@ -1122,7 +1227,6 @@ function drawCell(cx, cy, c) {
   const k = key(cx, cy);
   const [sx, sy] = cellToScreen(cx, cy);
 
-  // Skip if completely outside viewport
   if (sx + c < 0 || sx > viewState.W || sy + c < 0 || sy > viewState.H) {
     return;
   }
@@ -1140,31 +1244,27 @@ function drawCell(cx, cy, c) {
 }
 
 function drawHiddenCell(sx, sy, c, isFlagged) {
-  const padding = 1;
+  const padding = Math.max(1, c * 0.04);
 
-  // Cell background
   ctx.fillStyle = COLORS.cell.hidden;
   ctx.fillRect(sx + padding, sy + padding, c - padding * 2, c - padding * 2);
 
-  // 3D effect - top and left highlights
   ctx.fillStyle = COLORS.cell.borderLight;
-  ctx.fillRect(sx + padding, sy + padding, c - padding * 2, 2);
-  ctx.fillRect(sx + padding, sy + padding, 2, c - padding * 2);
+  const highlightSize = Math.max(1, c * 0.08);
+  ctx.fillRect(sx + padding, sy + padding, c - padding * 2, highlightSize);
+  ctx.fillRect(sx + padding, sy + padding, highlightSize, c - padding * 2);
 
-  // Flag
   if (isFlagged) {
     drawFlag(sx, sy, c);
   }
 }
 
 function drawRevealedCell(sx, sy, c, isMine, isHitMine, cx, cy) {
-  const padding = 1;
+  const padding = Math.max(1, c * 0.04);
 
-  // Background color
   ctx.fillStyle = isHitMine ? COLORS.mine : COLORS.cell.revealed;
   ctx.fillRect(sx + padding, sy + padding, c - padding * 2, c - padding * 2);
 
-  // Content
   if (isMine) {
     drawMine(sx, sy, c, isHitMine);
   } else {
@@ -1178,27 +1278,25 @@ function drawRevealedCell(sx, sy, c, isMine, isHitMine, cx, cy) {
 function drawFlag(sx, sy, c) {
   const centerX = sx + c / 2;
   const centerY = sy + c / 2;
-  const size = c * 0.4;
+  const size = c * 0.35;
 
-  // Flag pole
   ctx.fillStyle = '#333';
-  ctx.fillRect(centerX - 1, centerY - size * 0.8, 2, size * 1.6);
+  const poleWidth = Math.max(2, c * 0.08);
+  ctx.fillRect(centerX - poleWidth / 2, centerY - size * 0.8, poleWidth, size * 1.6);
 
-  // Flag
   ctx.fillStyle = COLORS.flag;
   ctx.beginPath();
   ctx.moveTo(centerX, centerY - size * 0.8);
-  ctx.lineTo(centerX + size * 0.8, centerY - size * 0.3);
-  ctx.lineTo(centerX, centerY + size * 0.2);
+  ctx.lineTo(centerX + size * 0.9, centerY - size * 0.25);
+  ctx.lineTo(centerX, centerY + size * 0.3);
   ctx.closePath();
   ctx.fill();
 
-  // Flag shadow
   ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
   ctx.beginPath();
   ctx.moveTo(centerX, centerY - size * 0.7);
-  ctx.lineTo(centerX + size * 0.6, centerY - size * 0.3);
-  ctx.lineTo(centerX, centerY + size * 0.1);
+  ctx.lineTo(centerX + size * 0.7, centerY - size * 0.2);
+  ctx.lineTo(centerX, centerY + size * 0.2);
   ctx.closePath();
   ctx.fill();
 }
@@ -1208,13 +1306,11 @@ function drawMine(sx, sy, c, isHit) {
   const centerY = sy + c / 2;
   const radius = c * 0.25;
 
-  // Mine body
   ctx.fillStyle = isHit ? '#ff0000' : '#222';
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
   ctx.fill();
 
-  // Mine spikes
   ctx.strokeStyle = isHit ? '#ff0000' : '#222';
   ctx.lineWidth = Math.max(1, c * 0.08);
   const spikeLength = radius * 1.5;
@@ -1232,7 +1328,6 @@ function drawMine(sx, sy, c, isHit) {
     ctx.stroke();
   }
 
-  // Highlight
   if (!isHit) {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
     ctx.beginPath();
@@ -1243,15 +1338,11 @@ function drawMine(sx, sy, c, isHit) {
 
 function drawNumber(sx, sy, c, count) {
   ctx.fillStyle = COLORS.numbers[count] || '#000';
-  ctx.font = `bold ${Math.floor(c * 0.6)}px Inter, sans-serif`;
+  ctx.font = `bold ${Math.floor(c * 0.65)}px Inter, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(count, sx + c / 2, sy + c / 2);
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// BACKGROUND ANIMATION
-// ═══════════════════════════════════════════════════════════════════════════
 
 let bgParticles = [];
 
@@ -1293,10 +1384,6 @@ function animateBackground() {
   requestAnimationFrame(animateBackground);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// UI UPDATES
-// ═══════════════════════════════════════════════════════════════════════════
-
 function updateUI() {
   flagCountEl.textContent = gameState.flagged.size;
   undoCountEl.textContent = gameState.undoCount;
@@ -1308,6 +1395,18 @@ function showGameOverModal() {
   modalIcon.textContent = '💥';
   modalTitle.textContent = 'Boom!';
   modalText.textContent = 'Vous avez touché une mine. Utilisez "Annuler" pour revenir en arrière.';
+  
+  modalActions.innerHTML = `
+    <button class="btn btn-primary" onclick="modalOverlay.classList.remove('show'); undo();">
+      <span class="btn-icon">↩</span>
+      Annuler
+    </button>
+    <button class="btn" onclick="modalOverlay.classList.remove('show'); confirmNewGame();">
+      <span class="btn-icon">🔄</span>
+      Nouveau jeu
+    </button>
+  `;
+  
   modalOverlay.classList.add('show');
 }
 
@@ -1337,11 +1436,43 @@ function showToast(type, title, message) {
   }, 3000);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// SAVE / LOAD SYSTEM
-// ═══════════════════════════════════════════════════════════════════════════
+let confirmCallback = null;
 
-function saveGame() {
+function showConfirmModal(title, text, onConfirm) {
+  modalIcon.textContent = '⚠️';
+  modalTitle.textContent = title;
+  modalText.textContent = text;
+  
+  confirmCallback = onConfirm;
+  modalOverlay.classList.add('show');
+}
+
+modalConfirm.addEventListener('click', () => {
+  modalOverlay.classList.remove('show');
+  if (confirmCallback) {
+    confirmCallback();
+    confirmCallback = null;
+  }
+});
+
+modalCancel.addEventListener('click', () => {
+  modalOverlay.classList.remove('show');
+  confirmCallback = null;
+});
+
+function confirmNewGame() {
+  if (gameState.revealedCount > 10 && !gameState.gameOver) {
+    showConfirmModal(
+      'Nouvelle partie ?',
+      'Vous avez déjà révélé plusieurs cellules. Voulez-vous vraiment recommencer ?',
+      () => newGame()
+    );
+  } else {
+    newGame();
+  }
+}
+
+function saveGame(showNotification = false) {
   const saveData = {
     seed: gameState.seed,
     revealed: Array.from(gameState.revealed),
@@ -1355,9 +1486,13 @@ function saveGame() {
 
   try {
     localStorage.setItem('minesweeper_save', JSON.stringify(saveData));
-    showToast('success', 'Partie sauvegardée', 'Votre progression a été enregistrée');
+    if (showNotification) {
+      showToast('success', 'Partie sauvegardée', 'Votre progression a été enregistrée');
+    }
   } catch (e) {
-    showToast('error', 'Erreur', 'Impossible de sauvegarder la partie');
+    if (showNotification) {
+      showToast('error', 'Erreur', 'Impossible de sauvegarder la partie');
+    }
   }
 }
 
@@ -1385,7 +1520,6 @@ function loadGame() {
     viewState.dirtyRender = true;
     requestRender();
 
-    showToast('success', 'Partie chargée', 'Votre progression a été restaurée');
     return true;
   } catch (e) {
     console.error('Load error:', e);
@@ -1395,7 +1529,7 @@ function loadGame() {
 
 function exportGame() {
   const exportData = {
-    v: 1, // version
+    v: 1,
     s: gameState.seed,
     r: Array.from(gameState.revealed),
     f: Array.from(gameState.flagged),
@@ -1404,7 +1538,7 @@ function exportGame() {
   const encoded = btoa(JSON.stringify(exportData));
   
   navigator.clipboard.writeText(encoded).then(() => {
-    showToast('success', 'Code copié!', 'Le code de partie a été copié dans votre presse-papier');
+    showToast('success', 'Code exporté!', 'Le code de partie a été copié dans votre presse-papier');
   }).catch(() => {
     showToast('error', 'Erreur', 'Impossible de copier le code');
   });
@@ -1442,10 +1576,6 @@ function importGame(code) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// GAME INITIALIZATION
-// ═══════════════════════════════════════════════════════════════════════════
-
 function newGame(customSeed = null) {
   gameState.seed = customSeed || generateRandomSeed();
   gameState.rng = new SeededRandom(gameState.seed);
@@ -1472,10 +1602,6 @@ function newGame(customSeed = null) {
   showToast('info', 'Nouveau jeu', `Seed: ${gameState.seed}`);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// RESIZE HANDLER
-// ═══════════════════════════════════════════════════════════════════════════
-
 function resize() {
   const rect = canvasWrap.getBoundingClientRect();
   const newW = Math.floor(rect.width);
@@ -1483,7 +1609,6 @@ function resize() {
 
   if (newW === viewState.W && newH === viewState.H) return;
 
-  // Keep center
   const fx = viewState.W ? viewState.offX / viewState.W : 0.5;
   const fy = viewState.H ? viewState.offY / viewState.H : 0.5;
 
@@ -1499,11 +1624,6 @@ function resize() {
 const resizeObserver = new ResizeObserver(resize);
 resizeObserver.observe(canvasWrap);
 
-// ═══════════════════════════════════════════════════════════════════════════
-// EVENT HANDLERS
-// ═══════════════════════════════════════════════════════════════════════════
-
-// Mouse events
 canvas.addEventListener('mousedown', e => {
   if (e.button === 1 || e.ctrlKey) {
     viewState.panning = true;
@@ -1547,7 +1667,7 @@ canvas.addEventListener('mousemove', e => {
   }
 });
 
-canvas.addEventListener('mouseup', e => {
+canvas.addEventListener('mouseup', () => {
   if (viewState.panning) {
     viewState.panning = false;
     canvas.classList.remove('panning');
@@ -1598,11 +1718,12 @@ canvas.addEventListener('wheel', e => {
   viewState.offY = my - scale * (my - viewState.offY);
   viewState.zoom = newZoom;
 
+  viewState.hiddenTexture = null;
+
   viewState.dirtyRender = true;
   requestRender();
 }, { passive: false });
 
-// Touch events
 let lastTouchDist = null;
 let lastTouchCx, lastTouchCy;
 
@@ -1654,6 +1775,7 @@ canvas.addEventListener('touchmove', e => {
     lastTouchCx = cx;
     lastTouchCy = cy;
     
+    viewState.hiddenTexture = null;
     viewState.dirtyRender = true;
     requestRender();
   } else if (e.touches.length === 1 && viewState.panning) {
@@ -1678,7 +1800,12 @@ canvas.addEventListener('touchend', e => {
     const touch = e.changedTouches[0];
     const rect = canvas.getBoundingClientRect();
     const [cx, cy] = screenToCell(touch.clientX - rect.left, touch.clientY - rect.top);
-    reveal(cx, cy);
+    
+    if (gameState.mobileMode === 'reveal') {
+      reveal(cx, cy);
+    } else {
+      toggleFlag(cx, cy);
+    }
   }
   
   viewState.panning = false;
@@ -1686,7 +1813,18 @@ canvas.addEventListener('touchend', e => {
   lastTouchDist = null;
 }, { passive: false });
 
-// Keyboard shortcuts
+mobileRevealBtn.addEventListener('click', () => {
+  gameState.mobileMode = 'reveal';
+  mobileRevealBtn.classList.add('active');
+  mobileFlagBtn.classList.remove('active');
+});
+
+mobileFlagBtn.addEventListener('click', () => {
+  gameState.mobileMode = 'flag';
+  mobileFlagBtn.classList.add('active');
+  mobileRevealBtn.classList.remove('active');
+});
+
 document.addEventListener('keydown', e => {
   if (e.ctrlKey && e.key === 'z') {
     e.preventDefault();
@@ -1694,18 +1832,17 @@ document.addEventListener('keydown', e => {
   }
   if (e.ctrlKey && e.key === 'r') {
     e.preventDefault();
-    newGame();
+    confirmNewGame();
   }
   if (e.ctrlKey && e.key === 's') {
     e.preventDefault();
-    saveGame();
+    saveGame(true);
   }
 });
 
-// Button handlers
-newGameBtn.addEventListener('click', () => newGame());
+newGameBtn.addEventListener('click', confirmNewGame);
 undoBtn.addEventListener('click', undo);
-saveBtn.addEventListener('click', saveGame);
+saveBtn.addEventListener('click', () => saveGame(true));
 exportBtn.addEventListener('click', exportGame);
 
 applySeedBtn.addEventListener('click', () => {
@@ -1725,70 +1862,52 @@ importBtn.addEventListener('click', () => {
   }
 });
 
-modalUndo.addEventListener('click', () => {
-  modalOverlay.classList.remove('show');
-  undo();
+sidebarToggleBtn.addEventListener('click', () => {
+  sidebar.classList.toggle('collapsed');
+  sidebarToggleIcon.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
 });
 
-modalNew.addEventListener('click', () => {
-  modalOverlay.classList.remove('show');
-  newGame();
-});
-
-sidebarToggle.addEventListener('click', () => {
+sidebarToggleMobile.addEventListener('click', () => {
   sidebar.classList.toggle('show');
 });
 
-// Close modal on overlay click
+document.addEventListener('click', e => {
+  if (window.innerWidth <= 768 && sidebar.classList.contains('show')) {
+    if (!sidebar.contains(e.target) && e.target !== sidebarToggleMobile) {
+      sidebar.classList.remove('show');
+    }
+  }
+});
+
 modalOverlay.addEventListener('click', e => {
   if (e.target === modalOverlay) {
     modalOverlay.classList.remove('show');
   }
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// AUTO-SAVE
-// ═══════════════════════════════════════════════════════════════════════════
-
 setInterval(() => {
   if (gameState.revealedCount > 0 && !gameState.gameOver) {
-    saveGame();
+    saveGame(false);
   }
 }, CONFIG.AUTO_SAVE_INTERVAL);
 
-// ═══════════════════════════════════════════════════════════════════════════
-// INITIALIZATION
-// ═══════════════════════════════════════════════════════════════════════════
-
 window.addEventListener('load', () => {
-  // Initialize canvas size
   const rect = canvasWrap.getBoundingClientRect();
   viewState.W = canvas.width = Math.floor(rect.width);
   viewState.H = canvas.height = Math.floor(rect.height);
 
-  // Initialize background
   initBackground();
 
-  // Try to load saved game, otherwise start new
   if (!loadGame()) {
     newGame();
   }
 
-  // Show mobile sidebar toggle on small screens
-  if (window.innerWidth <= 768) {
-    sidebarToggle.style.display = 'flex';
-  }
+  viewState.dirtyRender = true;
+  requestRender();
 
   window.addEventListener('resize', () => {
     bgCanvas.width = window.innerWidth;
     bgCanvas.height = window.innerHeight;
-    
-    if (window.innerWidth <= 768) {
-      sidebarToggle.style.display = 'flex';
-    } else {
-      sidebarToggle.style.display = 'none';
-      sidebar.classList.remove('show');
-    }
   });
 });
 
