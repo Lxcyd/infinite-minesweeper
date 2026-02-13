@@ -778,45 +778,163 @@ async function exportImage() {
   
   // Créer un canvas temporaire
   const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = w; tempCanvas.height = h;
-  const tempCtx = tempCanvas.getContext('2d');
+  tempCanvas.width = w;
+  tempCanvas.height = h;
+  const c = tempCanvas.getContext('2d');
   
   // Fond
-  tempCtx.fillStyle = COLORS.border; tempCtx.fillRect(0, 0, w, h);
+  c.fillStyle = COLORS.border;
+  c.fillRect(0, 0, w, h);
   
-  // Sauvegarder le contexte original
-  const oldCtx = ctx;
-  const oldZoom = V.zoom;
-  
-  // Utiliser le contexte temporaire
-  window.ctx = tempCtx;
-  V.zoom = cellSize / CONFIG.BASE_CELL;
-  
-  // Dessiner les cellules
+  // Dessiner toutes les cellules
   for(let cy = minY; cy <= maxY; cy++) {
     for(let cx = minX; cx <= maxX; cx++) {
       const sx = (cx - minX) * cellSize;
       const sy = (cy - minY) * cellSize;
       const k = key(cx, cy);
-      const rev = G.revealed.has(k), fl = G.flagged.has(k);
+      const revealed = G.revealed.has(k);
+      const flagged = G.flagged.has(k);
+      const mine = hasMine(cx, cy);
+      const p = Math.max(1, cellSize * 0.04);
       
-      if(rev) {
-        const mine = hasMine(cx, cy);
-        drawRev(sx, sy, cellSize, mine, false, cx, cy);
-      } else if(fl) {
-        drawHid(sx, sy, cellSize, true);
+      if(revealed) {
+        // Case révélée
+        c.fillStyle = COLORS.revealed;
+        c.fillRect(sx + p, sy + p, cellSize - p * 2, cellSize - p * 2);
+        
+        if(mine) {
+          // Dessiner mine
+          const isOld = G.preRevealedMines.has(k);
+          const centerX = sx + cellSize / 2;
+          const centerY = sy + cellSize / 2;
+          const r = cellSize * 0.22;
+          
+          c.save();
+          c.shadowColor = 'rgba(0,0,0,0.5)';
+          c.shadowBlur = cellSize * 0.2;
+          
+          // Corps de la mine
+          const grad = c.createRadialGradient(centerX - r * 0.3, centerY - r * 0.3, r * 0.1, centerX, centerY, r);
+          if(isOld) {
+            grad.addColorStop(0, '#5a5e76');
+            grad.addColorStop(1, '#2a2e3e');
+          } else {
+            grad.addColorStop(0, '#ff5577');
+            grad.addColorStop(1, COLORS.mine);
+          }
+          c.fillStyle = grad;
+          c.beginPath();
+          c.arc(centerX, centerY, r, 0, Math.PI * 2);
+          c.fill();
+          
+          // Pointes
+          c.strokeStyle = isOld ? '#4a4e66' : '#ff3366';
+          c.lineWidth = Math.max(1, cellSize * 0.06);
+          c.lineCap = 'round';
+          for(let i = 0; i < 8; i++) {
+            const a = i * Math.PI / 4;
+            c.beginPath();
+            c.moveTo(centerX + Math.cos(a) * r * 0.85, centerY + Math.sin(a) * r * 0.85);
+            c.lineTo(centerX + Math.cos(a) * r * 1.65, centerY + Math.sin(a) * r * 1.65);
+            c.stroke();
+          }
+          
+          // Reflet
+          if(!isOld) {
+            c.fillStyle = 'rgba(255,255,255,0.4)';
+            c.beginPath();
+            c.arc(centerX - r * 0.28, centerY - r * 0.28, r * 0.27, 0, Math.PI * 2);
+            c.fill();
+          }
+          
+          c.restore();
+        } else {
+          // Dessiner numéro
+          const n = countMines(cx, cy);
+          if(n > 0) {
+            c.fillStyle = COLORS.nums[n] || '#888';
+            c.font = `700 ${Math.floor(cellSize * 0.62)}px 'JetBrains Mono', monospace`;
+            c.textAlign = 'center';
+            c.textBaseline = 'middle';
+            c.fillText(n, sx + cellSize / 2, sy + cellSize / 2 + 1);
+          }
+        }
       } else {
-        drawHid(sx, sy, cellSize, false);
+        // Case cachée
+        c.fillStyle = COLORS.hidden;
+        c.fillRect(sx + p, sy + p, cellSize - p * 2, cellSize - p * 2);
+        
+        // Highlights
+        c.fillStyle = COLORS.blight;
+        const hl = Math.max(1, cellSize * 0.08);
+        c.fillRect(sx + p, sy + p, cellSize - p * 2, hl);
+        c.fillRect(sx + p, sy + p, hl, cellSize - p * 2);
+        
+        if(flagged) {
+          // Dessiner drapeau
+          const fcx = sx + cellSize / 2;
+          const fcy = sy + cellSize / 2;
+          const s = cellSize * 0.28;
+          const pW = Math.max(1.5, cellSize * 0.065);
+          const pTop = fcy - s * 1.0;
+          const pBot = fcy + s * 1.2;
+          
+          c.save();
+          c.shadowColor = 'rgba(0,0,0,0.38)';
+          c.shadowBlur = cellSize * 0.14;
+          
+          // Base
+          c.fillStyle = '#4a5280';
+          c.beginPath();
+          c.ellipse(fcx, pBot, s * 0.65, s * 0.18, 0, 0, Math.PI * 2);
+          c.fill();
+          
+          // Poteau
+          const pg = c.createLinearGradient(fcx, 0, fcx + pW * 3, 0);
+          pg.addColorStop(0, '#6a7090');
+          pg.addColorStop(1, '#b0b8d0');
+          c.fillStyle = pg;
+          c.beginPath();
+          if(c.roundRect) {
+            c.roundRect(fcx - pW / 2, pTop, pW, pBot - pTop, pW / 2);
+          } else {
+            c.rect(fcx - pW / 2, pTop, pW, pBot - pTop);
+          }
+          c.fill();
+          
+          // Drapeau
+          const fg = c.createLinearGradient(fcx, pTop, fcx + s * 1.5, pTop + s * 0.9);
+          fg.addColorStop(0, '#ff2d6b');
+          fg.addColorStop(1, '#ff7a2d');
+          c.fillStyle = fg;
+          c.beginPath();
+          c.moveTo(fcx, pTop);
+          c.lineTo(fcx + s * 1.5, pTop + s * 0.55);
+          c.lineTo(fcx, pTop + s * 1.1);
+          c.closePath();
+          c.fill();
+          
+          // Reflet sur drapeau
+          c.fillStyle = 'rgba(255,255,255,0.18)';
+          c.beginPath();
+          c.moveTo(fcx, pTop);
+          c.lineTo(fcx + s * 1.5, pTop + s * 0.55);
+          c.lineTo(fcx, pTop + s * 0.28);
+          c.closePath();
+          c.fill();
+          
+          c.restore();
+        }
       }
     }
   }
   
-  // Restaurer le contexte original
-  window.ctx = oldCtx;
-  V.zoom = oldZoom;
-  
-  // Télécharger
+  // Exporter en PNG
   tempCanvas.toBlob(blob => {
+    if(!blob) {
+      toast('error', 'Erreur d\'export', 'Impossible de créer l\'image');
+      return;
+    }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -824,7 +942,7 @@ async function exportImage() {
     a.click();
     URL.revokeObjectURL(url);
     toast('success', 'Image exportée !', 'L\'image a été téléchargée');
-  });
+  }, 'image/png');
 }
 
 // PANELS HTML
