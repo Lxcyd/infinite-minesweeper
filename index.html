@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>∞ Démineur Infini</title>
+<title>Démineur Infini</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230a0e1a' rx='20'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' style='stop-color:%2300d4ff'/%3E%3Cstop offset='1' style='stop-color:%2300d4ff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M 25 50 C 25 35, 35 35, 40 40 C 45 45, 45 50, 50 50 C 55 50, 55 45, 60 40 C 65 35, 75 35, 75 50 C 75 65, 65 65, 60 60 C 55 55, 55 50, 50 50 C 45 50, 45 55, 40 60 C 35 65, 25 65, 25 50 Z' fill='none' stroke='url(%23g)' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
@@ -26,6 +26,7 @@
   --shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
   --sidebar-w: 340px;
   --sidebar-t: 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+  --header-h: 0px;
 }
 
 html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-main); font-family: 'Sora', sans-serif; color: var(--text-primary); }
@@ -57,6 +58,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-m
 .stat-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); }
 .stat-value {
   font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 600;
+  color: var(--accent-primary);
+}
+.stat-value.gradient {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
@@ -99,30 +103,19 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-m
 .zoom-btn ion-icon { font-size: 20px; }
 #zoom-reset-btn { font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-secondary); }
 
-/* SIDEBAR CHIP (desktop) - FIXED POSITIONING WITH ANIMATION */
-#sidebar-chip {
-  position: fixed; right: 0; top: 50%; transform: translateY(-50%);
-  z-index: 25; width: 24px; height: 56px;
-  background: var(--bg-card); border: 1px solid var(--border); border-right: none; border-radius: 9px 0 0 9px;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  color: var(--text-secondary); font-size: 13px;
-  transition: background 0.2s, border-color 0.2s, color 0.2s, right var(--sidebar-t);
-}
-#sidebar-chip:hover { background: rgba(40,48,72,0.95); border-color: var(--border-hover); color: var(--accent-primary); }
-#sidebar-chip.sidebar-open { right: var(--sidebar-w); }
-
 /* SIDEBAR (desktop) - OVERLAY MODE */
 #sidebar {
-  position: fixed; right: 0; top: 0; bottom: 0; width: var(--sidebar-w);
+  position: fixed; right: 0; bottom: 0; width: var(--sidebar-w);
   backdrop-filter: blur(24px); background: var(--bg-panel); border-left: 1px solid var(--border);
   display: flex; flex-direction: column; overflow: hidden;
   transition: transform var(--sidebar-t), opacity var(--sidebar-t);
   box-shadow: -6px 0 28px rgba(0,0,0,0.28); z-index: 50;
   transform: translateX(0);
   opacity: 1;
+  top: var(--header-h);
 }
 #sidebar.collapsed { transform: translateX(100%); opacity: 0; pointer-events: none; }
-#sidebar-inner { width: 100%; padding: 18px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 18px; flex: 1; }
+#sidebar-inner { width: 100%; padding: 18px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 20px; flex: 1; }
 #sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
 #sidebar-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-secondary); }
 #sidebar-x { width: 27px; height: 27px; background: rgba(255,45,107,0.1); border: 1px solid rgba(255,45,107,0.22); border-radius: 7px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent-secondary); font-size: 15px; transition: background 0.2s, transform 0.15s; }
@@ -145,7 +138,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-m
 #mobile-sheet-title { font-size: 16px; font-weight: 700; }
 #mobile-sheet-close { width: 30px; height: 30px; background: rgba(255,45,107,0.1); border: 1px solid rgba(255,45,107,0.22); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--accent-secondary); font-size: 17px; transition: background 0.2s, transform 0.15s; }
 #mobile-sheet-close:hover { background: rgba(255,45,107,0.22); transform: scale(1.08); }
-#mobile-sheet-body { overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 18px; }
+#mobile-sheet-body { overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 20px; }
 
 /* SHARED PANEL STYLES */
 .panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 13px; padding: 16px; transition: border-color 0.2s; }
@@ -223,7 +216,7 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
   #header { flex-wrap: wrap; padding: 9px 13px; gap: 9px; }
   .header-stats { order: 3; width: 100%; justify-content: space-between; }
   .stat-card { min-width: auto; flex: 1; }
-  #sidebar, #sidebar-chip { display: none !important; }
+  #sidebar { display: none !important; }
   #btn-desktop-params { display: none !important; }
   #mobile-controls { display: flex; }
   #toast-container { right: 10px; left: 10px; }
@@ -295,7 +288,7 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
     <div class="header-stats">
       <div class="stat-card"><div class="stat-label">Drapeaux</div><div class="stat-value" id="flag-count">0</div></div>
       <div class="stat-card"><div class="stat-label">Erreurs</div><div class="stat-value" id="error-count">0</div></div>
-      <div class="stat-card"><div class="stat-label">Cases</div><div class="stat-value" id="revealed-count">0</div></div>
+      <div class="stat-card"><div class="stat-label">Cases</div><div class="stat-value gradient" id="revealed-count">0</div></div>
     </div>
   </div>
 
@@ -303,12 +296,11 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
     <div id="canvas-wrap">
       <canvas id="canvas"></canvas>
 
-      <div id="sidebar-chip" title="Paramètres">‹</div>
-
       <div id="zoom-controls">
         <button class="zoom-btn" id="zoom-in-btn" title="Zoom +"><ion-icon name="add-outline"></ion-icon></button>
         <button class="zoom-btn" id="zoom-reset-btn" title="Réinitialiser zoom">100%</button>
         <button class="zoom-btn" id="zoom-out-btn" title="Zoom −"><ion-icon name="remove-outline"></ion-icon></button>
+        <button class="zoom-btn" id="fullscreen-btn" title="Plein écran"><ion-icon name="expand-outline"></ion-icon></button>
       </div>
     </div>
 
@@ -317,7 +309,7 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
       <button class="mobile-mode-btn" id="mobile-flag">🚩</button>
     </div>
 
-    <div id="sidebar">
+    <div id="sidebar" class="collapsed">
       <div id="sidebar-inner">
         <div id="sidebar-header">
           <span id="sidebar-title">Paramètres</span>
@@ -333,14 +325,14 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
 const CONFIG = {
   BASE_CELL: 24, MINE_PCT: 18, SAFE_RADIUS: 4,
   MAX_FLOOD: 30000,
-  ZOOM_MIN: 0.15, ZOOM_MAX: 5, ZOOM_TEX: 0.4,
+  ZOOM_MIN: 0.05, ZOOM_MAX: 5, ZOOM_TEX: 0.4,
   AUTO_SAVE: 10000, CULL: 2,
 };
 
 const COLORS = {
   nums: [null,'#4fc3f7','#81c784','#e57373','#ba68c8','#ffb74d','#26c6da','#a1887f','#90a4ae'],
   revealed: '#1a2035', hidden: '#2d3655', border: '#0d1120', blight: '#4a5280',
-  mine: '#ff2d6b', mineImported: '#1a1e2e',
+  mine: '#ff2d6b', mineOld: '#3a3e56',
 };
 
 // DOM
@@ -361,10 +353,10 @@ const mobileSheetOverlay = document.getElementById('mobile-sheet-overlay');
 let G = {
   seed: '', rng: null,
   revealed: new Set(), flagged: new Set(), safeCells: new Set(),
+  preRevealedMines: new Set(), // Mines déjà révélées avant import/reload
   gameOver: false, firstClick: true, firstError: true,
   mineHit: null, errorCount: 0, revealedCount: 0,
   mobileMode: 'reveal',
-  imported: false,
 };
 let V = {
   W: 0, H: 0, offX: 0, offY: 0, zoom: 1,
@@ -415,7 +407,10 @@ function reveal(x,y) {
   if (hasMine(x,y)) {
     G.revealed.add(k); G.revealedCount++; G.gameOver=true; G.mineHit=[x,y]; G.errorCount++;
     if(G.firstError) showErrorModal();
-    updateUI(); dirty(); return;
+    updateUI(); dirty();
+    // Auto continue after 1.5s
+    setTimeout(() => continueAfterError(), 1500);
+    return;
   }
   const q=[[x,y]], seen=new Set([k]); let cnt=0;
   while(q.length && cnt<CONFIG.MAX_FLOOD) {
@@ -492,7 +487,7 @@ function drawRev(sx,sy,c,mine,hit,cx,cy) {
   const p=Math.max(1,c*0.04);
   ctx.fillStyle=hit?'#3d0012':COLORS.revealed; ctx.fillRect(sx+p,sy+p,c-p*2,c-p*2);
   if(hit) { ctx.fillStyle='rgba(255,45,107,0.18)'; ctx.fillRect(sx+p,sy+p,c-p*2,c-p*2); }
-  if(mine) drawMine(sx,sy,c,hit); else { const n=countMines(cx,cy); if(n) drawNum(sx,sy,c,n); }
+  if(mine) drawMine(sx,sy,c,hit,cx,cy); else { const n=countMines(cx,cy); if(n) drawNum(sx,sy,c,n); }
 }
 
 function drawFlag(sx,sy,c) {
@@ -516,20 +511,47 @@ function drawFlag(sx,sy,c) {
   ctx.restore();
 }
 
-function drawMine(sx,sy,c,hit) {
-  const cx=sx+c/2,cy=sy+c/2,r=c*0.22;
-  const mineColor = G.imported ? COLORS.mineImported : COLORS.mine;
-  ctx.save(); ctx.shadowColor=hit?'#ff2d6b':'rgba(0,0,0,0.5)'; ctx.shadowBlur=hit?c*0.4:c*0.2;
-  const bg=ctx.createRadialGradient(cx-r*0.3,cy-r*0.3,r*0.1,cx,cy,r);
-  if(G.imported) {
-    bg.addColorStop(0,'#4a5066'); bg.addColorStop(1,'#1a1e2e');
+function drawMine(sx,sy,c,hit,cx,cy) {
+  const k=key(cx,cy);
+  const isOld = G.preRevealedMines.has(k);
+  const mineColor = isOld ? COLORS.mineOld : COLORS.mine;
+  
+  const centerX=sx+c/2, centerY=sy+c/2, r=c*0.22;
+  ctx.save();
+  
+  if(hit && !isOld) {
+    ctx.shadowColor='#ff2d6b'; ctx.shadowBlur=c*0.4;
   } else {
-    bg.addColorStop(0,hit?'#ff6b8a':'#4a5066'); bg.addColorStop(1,hit?'#cc0033':mineColor);
+    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=c*0.2;
   }
-  ctx.fillStyle=bg; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle=hit?'#ff2d6b':'#3a3e56'; ctx.lineWidth=Math.max(1,c*0.06); ctx.lineCap='round';
-  for(let i=0;i<8;i++) { const a=i*Math.PI/4; ctx.beginPath(); ctx.moveTo(cx+Math.cos(a)*r*0.85,cy+Math.sin(a)*r*0.85); ctx.lineTo(cx+Math.cos(a)*r*1.65,cy+Math.sin(a)*r*1.65); ctx.stroke(); }
-  ctx.fillStyle='rgba(255,255,255,0.32)'; ctx.beginPath(); ctx.arc(cx-r*0.28,cy-r*0.28,r*0.27,0,Math.PI*2); ctx.fill();
+  
+  const bg=ctx.createRadialGradient(centerX-r*0.3,centerY-r*0.3,r*0.1,centerX,centerY,r);
+  if(isOld) {
+    bg.addColorStop(0,'#5a5e76'); bg.addColorStop(1,'#2a2e3e');
+  } else if(hit) {
+    bg.addColorStop(0,'#ff6b8a'); bg.addColorStop(1,'#cc0033');
+  } else {
+    bg.addColorStop(0,'#ff5577'); bg.addColorStop(1,mineColor);
+  }
+  ctx.fillStyle=bg; ctx.beginPath(); ctx.arc(centerX,centerY,r,0,Math.PI*2); ctx.fill();
+  
+  ctx.strokeStyle=isOld?'#4a4e66':(hit?'#ff2d6b':'#ff3366'); 
+  ctx.lineWidth=Math.max(1,c*0.06); ctx.lineCap='round';
+  for(let i=0;i<8;i++) { 
+    const a=i*Math.PI/4; 
+    ctx.beginPath(); 
+    ctx.moveTo(centerX+Math.cos(a)*r*0.85,centerY+Math.sin(a)*r*0.85); 
+    ctx.lineTo(centerX+Math.cos(a)*r*1.65,centerY+Math.sin(a)*r*1.65); 
+    ctx.stroke(); 
+  }
+  
+  if(!isOld) {
+    ctx.fillStyle='rgba(255,255,255,0.4)'; 
+    ctx.beginPath(); 
+    ctx.arc(centerX-r*0.28,centerY-r*0.28,r*0.27,0,Math.PI*2); 
+    ctx.fill();
+  }
+  
   ctx.restore();
 }
 
@@ -582,7 +604,7 @@ function showErrorModal() {
   showModal({
     icon:'💥', title:'Première erreur !',
     text:'Vous avez touché une mine. Dans le Démineur Infini, chaque mine touchée compte comme une erreur.',
-    warning:'💡 Le jeu continue ! Vous pouvez continuer à jouer et explorer la carte. Les erreurs sont comptabilisées, mais vous ne perdez pas. Utilisez les drapeaux pour marquer les mines suspectes.',
+    warning:'💡 Le jeu continue automatiquement ! Vous pouvez continuer à jouer et explorer la carte. Les erreurs sont comptabilisées, mais vous ne perdez pas. Utilisez les drapeaux pour marquer les mines suspectes.',
     actions:[
       {label:'<ion-icon name="play-outline"></ion-icon> Continuer',cls:'btn-primary',fn:()=>continueAfterError()},
       {label:'<ion-icon name="refresh-outline"></ion-icon> Recommencer',fn:()=>confirmNewGame()},
@@ -624,10 +646,11 @@ function toast(type,title,msg) {
 // SAVE / LOAD
 function saveGame(notify=false) {
   try {
-    localStorage.setItem('mine_v3',JSON.stringify({
+    localStorage.setItem('mine_v4',JSON.stringify({
       seed:G.seed,r:[...G.revealed],f:[...G.flagged],sc:[...G.safeCells],
       fc:G.firstClick,rc:G.revealedCount,ec:G.errorCount,fe:G.firstError,
-      settings:SETTINGS,ts:Date.now(),imported:G.imported
+      prm:[...G.preRevealedMines],
+      settings:SETTINGS,ts:Date.now()
     }));
     if(notify) toast('success','Partie sauvegardée','Votre progression a été enregistrée');
   } catch { if(notify) toast('error','Erreur','Impossible de sauvegarder'); }
@@ -635,20 +658,27 @@ function saveGame(notify=false) {
 
 function loadGame() {
   try {
-    const d=JSON.parse(localStorage.getItem('mine_v3')); if(!d) return false;
+    const d=JSON.parse(localStorage.getItem('mine_v4')); if(!d) return false;
     G.seed=d.seed; G.rng=new RNG(d.seed);
     G.revealed=new Set(d.r); G.flagged=new Set(d.f); G.safeCells=new Set(d.sc||[]);
     G.firstClick=d.fc; G.revealedCount=d.rc||d.r.length; 
     G.errorCount=d.ec||0; G.firstError=d.fe!==false;
     G.gameOver=false; G.mineHit=null;
-    G.imported=d.imported||false;
+    
+    // Marquer toutes les mines révélées comme "anciennes"
+    G.preRevealedMines=new Set();
+    d.r.forEach(k => {
+      const [x,y] = k.split(',').map(Number);
+      if(hasMine(x,y)) G.preRevealedMines.add(k);
+    });
+    
     if(d.settings) SETTINGS={...SETTINGS,...d.settings};
     updateUI(); dirty(); return true;
   } catch { return false; }
 }
 
 function exportGame() {
-  const data=btoa(JSON.stringify({v:3,s:G.seed,r:[...G.revealed],f:[...G.flagged],sc:[...G.safeCells],ec:G.errorCount}));
+  const data=btoa(JSON.stringify({v:4,s:G.seed,r:[...G.revealed],f:[...G.flagged],sc:[...G.safeCells],ec:G.errorCount}));
   navigator.clipboard.writeText(data)
     .then(()=>toast('success','Code exporté !','Copié dans le presse-papier'))
     .catch(()=>toast('error','Erreur clipboard','Impossible de copier automatiquement'));
@@ -657,7 +687,7 @@ function exportGame() {
 function importGame(code) {
   try {
     const d=JSON.parse(atob(code.trim()));
-    if(d.v<1||d.v>3) { toast('error','Version incompatible','Ce code n\'est pas compatible'); return; }
+    if(d.v<1||d.v>4) { toast('error','Version incompatible','Ce code n\'est pas compatible'); return; }
     G.seed=d.s; G.rng=new RNG(d.s);
     G.revealed=new Set(d.r); G.flagged=new Set(d.f);
     if(d.v>=2&&d.sc) {
@@ -668,7 +698,14 @@ function importGame(code) {
     }
     G.firstClick=false; G.revealedCount=d.r.length; G.gameOver=false;
     G.mineHit=null; G.errorCount=d.ec||0; G.firstError=false;
-    G.imported=true;
+    
+    // Marquer toutes les mines révélées comme "anciennes"
+    G.preRevealedMines=new Set();
+    d.r.forEach(k => {
+      const [x,y] = k.split(',').map(Number);
+      if(hasMine(x,y)) G.preRevealedMines.add(k);
+    });
+    
     updateUI(); dirty();
     toast('success','Partie importée !','La partie a été restaurée avec succès');
   } catch { toast('error','Code invalide','Le code est invalide ou corrompu'); }
@@ -679,7 +716,7 @@ function newGame(seed=null) {
   G.revealed=new Set(); G.flagged=new Set(); G.safeCells=new Set();
   G.gameOver=false; G.firstClick=true; G.mineHit=null;
   G.errorCount=0; G.revealedCount=0; G.firstError=true;
-  G.imported=false;
+  G.preRevealedMines=new Set();
   V.zoom=1; V.offX=V.W/2-6*CONFIG.BASE_CELL; V.offY=V.H/2-6*CONFIG.BASE_CELL;
   modalOverlay.classList.remove('show'); updateUI(); dirty();
   toast('info','Nouveau jeu !',`Seed : ${G.seed}`);
@@ -694,6 +731,93 @@ function zoom(factor,cx,cy) {
   updateUI(); dirty();
 }
 
+// FULLSCREEN
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(err => {
+      toast('error', 'Erreur plein écran', 'Impossible d\'activer le mode plein écran');
+    });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+// EXPORT IMAGE
+async function exportImage() {
+  toast('info', 'Export en cours...', 'Génération de l\'image de la partie');
+  
+  // Calculer les limites de la zone révélée
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  G.revealed.forEach(k => {
+    const [x, y] = k.split(',').map(Number);
+    minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+    minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+  });
+  
+  if(G.revealed.size === 0) {
+    toast('error', 'Aucune case révélée', 'Révélez des cases avant d\'exporter');
+    return;
+  }
+  
+  // Ajouter une marge
+  const margin = 2;
+  minX -= margin; maxX += margin; minY -= margin; maxY += margin;
+  
+  const cellSize = 32; // Taille fixe pour l'export
+  const w = (maxX - minX + 1) * cellSize;
+  const h = (maxY - minY + 1) * cellSize;
+  
+  // Créer un canvas temporaire
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = w; tempCanvas.height = h;
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // Fond
+  tempCtx.fillStyle = COLORS.border; tempCtx.fillRect(0, 0, w, h);
+  
+  // Dessiner les cellules
+  for(let cy = minY; cy <= maxY; cy++) {
+    for(let cx = minX; cx <= maxX; cx++) {
+      const sx = (cx - minX) * cellSize;
+      const sy = (cy - minY) * cellSize;
+      const k = key(cx, cy);
+      const rev = G.revealed.has(k), fl = G.flagged.has(k);
+      
+      // Sauvegarder le contexte et ajuster temporairement
+      const oldCtx = ctx;
+      const oldCs = V.zoom;
+      V.zoom = cellSize / CONFIG.BASE_CELL;
+      
+      // Utiliser le contexte temporaire
+      window.ctx = tempCtx;
+      
+      if(rev) {
+        const mine = hasMine(cx, cy);
+        drawRev(sx, sy, cellSize, mine, false, cx, cy);
+      } else if(fl) {
+        drawHid(sx, sy, cellSize, true);
+      } else {
+        drawHid(sx, sy, cellSize, false);
+      }
+      
+      // Restaurer
+      window.ctx = oldCtx;
+      V.zoom = oldCs;
+    }
+  }
+  
+  // Télécharger
+  tempCanvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `demineur-${G.seed}-${Date.now()}.png`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('success', 'Image exportée !', 'L\'image a été téléchargée');
+  });
+}
+
 // PANELS HTML
 function panelHTML(id) {
   return `
@@ -704,6 +828,7 @@ function panelHTML(id) {
         <button class="btn btn-small imp-btn-${id}"><ion-icon name="download-outline"></ion-icon> Importer</button>
         <button class="btn btn-small exp-btn-${id}"><ion-icon name="share-outline"></ion-icon> Exporter</button>
       </div>
+      <button class="btn btn-small export-img-${id}" style="width:100%;margin-top:8px;justify-content:center;"><ion-icon name="image-outline"></ion-icon> Télécharger image</button>
       <div class="help-text">Le code contient la seed, les cases révélées, les drapeaux et les erreurs.</div>
     </div>
 
@@ -745,6 +870,7 @@ function panelHTML(id) {
         <div class="shortcut-item"><span>Zoom</span><span class="shortcut-key">Molette</span></div>
         <div class="shortcut-item"><span>Nouvelle partie</span><span class="shortcut-key">Ctrl+N</span></div>
         <div class="shortcut-item"><span>Sauvegarder</span><span class="shortcut-key">Ctrl+S</span></div>
+        <div class="shortcut-item"><span>Plein écran</span><span class="shortcut-key">F11</span></div>
       </div>
     </div>
 
@@ -762,6 +888,7 @@ function bindPanel(id) {
     else toast('info','Champ vide','Collez d\'abord un code de partie');
   });
   document.querySelector(`.exp-btn-${id}`).addEventListener('click',exportGame);
+  document.querySelector(`.export-img-${id}`).addEventListener('click',exportImage);
 
   document.querySelectorAll(`.auto-save-toggle`).forEach(toggle => {
     toggle.addEventListener('change', (e) => {
@@ -800,17 +927,13 @@ function initPanels() {
 }
 
 // SIDEBAR
-let sidebarOpen=true;
-const chip=document.getElementById('sidebar-chip');
+let sidebarOpen=false; // Start closed
 
 function toggleSidebar(force) {
   sidebarOpen=force!==undefined?force:!sidebarOpen;
   sidebar.classList.toggle('collapsed',!sidebarOpen);
-  chip.textContent=sidebarOpen?'›':'‹';
-  if(sidebarOpen) chip.classList.add('sidebar-open'); else chip.classList.remove('sidebar-open');
 }
 
-chip.addEventListener('click',()=>toggleSidebar());
 document.getElementById('sidebar-x').addEventListener('click',()=>toggleSidebar(false));
 document.getElementById('btn-desktop-params').addEventListener('click',()=>toggleSidebar());
 
@@ -823,6 +946,7 @@ mobileSheetOverlay.addEventListener('click',e=>{if(e.target===mobileSheetOverlay
 document.getElementById('zoom-in-btn').addEventListener('click',()=>zoom(1.25));
 document.getElementById('zoom-out-btn').addEventListener('click',()=>zoom(1/1.25));
 document.getElementById('zoom-reset-btn').addEventListener('click',()=>{ V.zoom=1; V.offX=V.W/2-6*CONFIG.BASE_CELL; V.offY=V.H/2-6*CONFIG.BASE_CELL; updateUI(); dirty(); });
+document.getElementById('fullscreen-btn').addEventListener('click',toggleFullscreen);
 
 // HEADER BUTTONS
 document.getElementById('new-game-btn').addEventListener('click',confirmNewGame);
@@ -882,7 +1006,7 @@ document.addEventListener('keydown',e=>{
   if(e.ctrlKey&&e.key==='s'){e.preventDefault();saveGame(true);}
 });
 
-// RESIZE
+// RESIZE & INIT
 function resize() {
   const r=canvasWrap.getBoundingClientRect();
   const nW=Math.floor(r.width),nH=Math.floor(r.height);
@@ -895,12 +1019,20 @@ new ResizeObserver(resize).observe(canvasWrap);
 setInterval(()=>{if(SETTINGS.autoSave && G.revealedCount>0)saveGame();},CONFIG.AUTO_SAVE);
 
 window.addEventListener('load',()=>{
+  // Calculer la hauteur du header
+  const headerHeight = document.getElementById('header').offsetHeight;
+  document.documentElement.style.setProperty('--header-h', headerHeight + 'px');
+  
   const r=canvasWrap.getBoundingClientRect();
   V.W=canvas.width=Math.floor(r.width);V.H=canvas.height=Math.floor(r.height);
   initBg(); loadSettings(); initPanels();
   if(!loadGame()) newGame();
   dirty();
-  window.addEventListener('resize',()=>{bgCanvas.width=window.innerWidth;bgCanvas.height=window.innerHeight;});
+  window.addEventListener('resize',()=>{
+    bgCanvas.width=window.innerWidth;bgCanvas.height=window.innerHeight;
+    const h = document.getElementById('header').offsetHeight;
+    document.documentElement.style.setProperty('--header-h', h + 'px');
+  });
 });
 </script>
 </body>
