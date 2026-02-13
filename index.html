@@ -408,8 +408,8 @@ function reveal(x,y) {
     G.revealed.add(k); G.revealedCount++; G.gameOver=true; G.mineHit=[x,y]; G.errorCount++;
     if(G.firstError) showErrorModal();
     updateUI(); dirty();
-    // Auto continue after 1.5s
-    setTimeout(() => continueAfterError(), 1500);
+    // Auto continue after 0.8s
+    setTimeout(() => continueAfterError(), 800);
     return;
   }
   const q=[[x,y]], seen=new Set([k]); let cnt=0;
