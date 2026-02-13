@@ -183,6 +183,7 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
 .mobile-mode-btn { width: 62px; height: 62px; backdrop-filter: blur(20px); background: var(--bg-card); border: 2px solid var(--border); border-radius: 50%; font-size: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.22s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
 .mobile-mode-btn:active { transform: scale(0.93); }
 .mobile-mode-btn.active { border-color: var(--accent-primary); background: rgba(0,212,255,0.13); box-shadow: 0 0 20px rgba(0,212,255,0.38); }
+#mobile-flag { padding-left: 3px; }
 
 /* MODAL */
 #modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 250; align-items: center; justify-content: center; }
@@ -230,7 +231,7 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
   #sidebar { display: none !important; }
   #btn-desktop-params { display: none !important; }
   #mobile-controls { display: flex; }
-  #toast-container { right: 10px; left: 10px; top: auto; bottom: 150px; }
+  #toast-container { right: 10px; left: 10px; top: auto; bottom: 200px; }
   .toast { min-width: auto; }
   
   #zoom-controls { bottom: 20px; left: 14px; flex-direction: column; }
@@ -339,7 +340,7 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
 const CONFIG = {
   BASE_CELL: 24, MINE_PCT: 18, SAFE_RADIUS: 4,
   MAX_FLOOD: 30000,
-  ZOOM_MIN: 0.05, ZOOM_MAX: 5, ZOOM_TEX: 0.4,
+  ZOOM_MIN: 0.1, ZOOM_MAX: 5, ZOOM_TEX: 0.4,
   AUTO_SAVE: 10000, CULL: 2,
 };
 
@@ -444,11 +445,42 @@ function reveal(x,y) {
 }
 
 function chord(x,y) {
-  const k=key(x,y); if(!G.revealed.has(k)||hasMine(x,y)) return;
-  const mc=countMines(x,y); if(!mc) return;
-  let fc=0;
-  for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++) if((dx||dy)&&G.flagged.has(key(x+dx,y+dy))) fc++;
-  if(fc===mc) { for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++) { if(!dx&&!dy) continue; const nk=key(x+dx,y+dy); if(!G.revealed.has(nk)&&!G.flagged.has(nk)) reveal(x+dx,y+dy); } }
+  const k=key(x,y); 
+  if(!G.revealed.has(k)||hasMine(x,y)) return;
+  const mc=countMines(x,y); 
+  if(!mc) return;
+  
+  // Compter les drapeaux et les cases non révélées autour
+  let fc=0, unrevealed=[];
+  for(let dy=-1;dy<=1;dy++) {
+    for(let dx=-1;dx<=1;dx++) {
+      if(!dx&&!dy) continue;
+      const nk=key(x+dx,y+dy);
+      if(G.flagged.has(nk)) fc++;
+      else if(!G.revealed.has(nk)) unrevealed.push([x+dx,y+dy]);
+    }
+  }
+  
+  // Si on a déjà le bon nombre de drapeaux, révéler les cases restantes
+  if(fc===mc) { 
+    for(let dy=-1;dy<=1;dy++) {
+      for(let dx=-1;dx<=1;dx++) { 
+        if(!dx&&!dy) continue; 
+        const nk=key(x+dx,y+dy); 
+        if(!G.revealed.has(nk)&&!G.flagged.has(nk)) reveal(x+dx,y+dy); 
+      }
+    }
+  }
+  // Si le nombre de cases non révélées (sans drapeaux) = nombre de mines restantes, placer des drapeaux
+  else if(unrevealed.length === mc - fc && unrevealed.length > 0) {
+    unrevealed.forEach(([nx,ny]) => {
+      const nk=key(nx,ny);
+      if(!G.flagged.has(nk)) {
+        G.flagged.add(nk);
+      }
+    });
+    updateUI(); dirty();
+  }
 }
 
 function flag(x,y) {
@@ -1065,7 +1097,7 @@ function panelHTML(id) {
       </div>
     </div>
 
-    <div class="tip-box">💡 <strong>Astuce :</strong> Quand un numéro affiché a autant de drapeaux autour de lui que son chiffre indique, cliquez dessus pour révéler automatiquement toutes les cases sûres adjacentes — technique Chord ! Sur mobile, cliquez à nouveau sur un bouton pour le désactiver et naviguer sans risque.</div>
+    <div class="tip-box">💡 <strong>Astuce :</strong> Le jeu place automatiquement des drapeaux intelligemment ! Si vous cliquez sur un chiffre et qu'il reste exactement le bon nombre de cases non révélées autour (sans drapeaux), elles seront automatiquement marquées. Si le bon nombre de drapeaux est déjà placé, cliquer révèle les autres cases. Sur mobile, cliquez à nouveau sur un bouton pour le désactiver et naviguer sans risque.</div>
   `;
 }
 
