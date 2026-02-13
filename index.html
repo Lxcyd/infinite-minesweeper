@@ -219,7 +219,7 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
   #logo-icon { width: 30px; height: 30px; }
   #logo-icon ion-icon { font-size: 18px; }
   
-  .btn-group { width: auto; }
+  .btn-group { width: auto; margin-left: auto; }
   .btn-group .btn:not(#btn-mobile-params) { display: none !important; }
   
   .header-stats { order: 3; width: 100%; justify-content: space-between; gap: 6px; }
@@ -230,10 +230,10 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
   #sidebar { display: none !important; }
   #btn-desktop-params { display: none !important; }
   #mobile-controls { display: flex; }
-  #toast-container { right: 10px; left: 10px; top: auto; bottom: 100px; }
+  #toast-container { right: 10px; left: 10px; top: auto; bottom: 150px; }
   .toast { min-width: auto; }
   
-  #zoom-controls { bottom: 10px; left: 50%; transform: translateX(-50%); flex-direction: row; }
+  #zoom-controls { bottom: 20px; left: 14px; flex-direction: column; }
   .zoom-btn { width: 44px; height: 44px; }
   #fullscreen-btn { display: none !important; }
 }
@@ -319,7 +319,7 @@ input:checked + .toggle-slider:before { transform: translateX(22px); background:
     </div>
 
     <div id="mobile-controls">
-      <button class="mobile-mode-btn active" id="mobile-reveal">💡</button>
+      <button class="mobile-mode-btn" id="mobile-reveal">💡</button>
       <button class="mobile-mode-btn" id="mobile-flag">🚩</button>
     </div>
 
@@ -370,12 +370,13 @@ let G = {
   preRevealedMines: new Set(),
   gameOver: false, firstClick: true, firstError: true,
   mineHit: null, errorCount: 0, revealedCount: 0,
-  mobileMode: 'reveal',
+  mobileMode: 'neutral', // 'reveal', 'flag', or 'neutral'
 };
 let V = {
   W: 0, H: 0, offX: 0, offY: 0, zoom: 1,
   panning: false, panSX: 0, panSY: 0, panOX: 0, panOY: 0,
   didPan: false, hover: null, dirty: true,
+  mouseDownTime: 0, mouseDownX: 0, mouseDownY: 0,
 };
 let SETTINGS = {
   notifications: true,
@@ -468,12 +469,22 @@ function render() {
   const x0=Math.floor(-offX/c)-m, y0=Math.floor(-offY/c)-m;
   const x1=Math.ceil((W-offX)/c)+m, y1=Math.ceil((H-offY)/c)+m;
   const tex = V.zoom < CONFIG.ZOOM_TEX;
+  
+  // Clipper le rendu à la zone visible
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, W, H);
+  ctx.clip();
+  
   if(tex) {
     ctx.fillStyle=COLORS.hidden; ctx.fillRect(0,0,W,H);
     for(let cy=y0;cy<=y1;cy++) for(let cx=x0;cx<=x1;cx++) { const k=key(cx,cy); if(G.revealed.has(k)||G.flagged.has(k)) drawCell(cx,cy,c); }
   } else {
     for(let cy=y0;cy<=y1;cy++) for(let cx=x0;cx<=x1;cx++) drawCell(cx,cy,c);
   }
+  
+  ctx.restore();
+  
   if(V.hover&&!G.gameOver&&!tex) {
     const[hx,hy]=V.hover,[sx,sy]=c2s(hx,hy);
     ctx.strokeStyle='rgba(0,212,255,0.42)'; ctx.lineWidth=Math.max(2,c*0.07);
@@ -945,12 +956,36 @@ async function exportImage() {
     }
     
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `demineur-${G.seed}-${Date.now()}.png`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast('success', 'Image exportée !', `Image téléchargée (${sizeMB} Mo)`);
+    
+    // Détection iOS standalone mode
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+    
+    if(isIOS && isStandalone) {
+      // Pour iOS en mode standalone, ouvrir dans un nouvel onglet
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        const base64data = reader.result;
+        const newWindow = window.open();
+        if(newWindow) {
+          newWindow.document.write(`<img src="${base64data}" alt="Démineur" style="max-width:100%;height:auto;"><br><a download="demineur-${G.seed}-${Date.now()}.png" href="${base64data}">Télécharger</a>`);
+          toast('info', 'Image ouverte', 'Appuyez longtemps sur l\'image puis "Ajouter aux photos"');
+        } else {
+          toast('error', 'Popup bloquée', 'Autorisez les popups pour télécharger');
+        }
+      };
+      reader.readAsDataURL(blob);
+    } else {
+      // Méthode normale pour desktop et mobile non-standalone
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `demineur-${G.seed}-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+      toast('success', 'Image exportée !', `Image téléchargée (${sizeMB} Mo)`);
+    }
   }, 'image/png');
 }
 
@@ -1021,7 +1056,8 @@ function panelHTML(id) {
       <div class="shortcut-list">
         <div class="shortcut-item"><span>Révéler case</span><span class="shortcut-key">Clic gauche</span></div>
         <div class="shortcut-item"><span>Placer drapeau</span><span class="shortcut-key">Clic droit</span></div>
-        <div class="shortcut-item"><span>Déplacer vue</span><span class="shortcut-key">Ctrl+Glisser</span></div>
+        <div class="shortcut-item"><span>Déplacer vue (1)</span><span class="shortcut-key">Ctrl+Glisser</span></div>
+        <div class="shortcut-item"><span>Déplacer vue (2)</span><span class="shortcut-key">Clic gauche maintenu</span></div>
         <div class="shortcut-item"><span>Zoom</span><span class="shortcut-key">Molette</span></div>
         <div class="shortcut-item"><span>Nouvelle partie</span><span class="shortcut-key">Ctrl+N</span></div>
         <div class="shortcut-item"><span>Sauvegarder</span><span class="shortcut-key">Ctrl+S</span></div>
@@ -1029,7 +1065,7 @@ function panelHTML(id) {
       </div>
     </div>
 
-    <div class="tip-box">💡 <strong>Astuce :</strong> Quand un numéro affiché a autant de drapeaux autour de lui que son chiffre indique, cliquez dessus pour révéler automatiquement toutes les cases sûres adjacentes — technique Chord !</div>
+    <div class="tip-box">💡 <strong>Astuce :</strong> Quand un numéro affiché a autant de drapeaux autour de lui que son chiffre indique, cliquez dessus pour révéler automatiquement toutes les cases sûres adjacentes — technique Chord ! Sur mobile, cliquez à nouveau sur un bouton pour le désactiver et naviguer sans risque.</div>
   `;
 }
 
@@ -1125,27 +1161,52 @@ document.getElementById('export-btn').addEventListener('click',exportGame);
 
 // CANVAS
 canvas.addEventListener('mousedown',e=>{
+  V.mouseDownTime = Date.now();
+  V.mouseDownX = e.clientX;
+  V.mouseDownY = e.clientY;
+  
   if(e.button===1||e.ctrlKey){ 
     V.panning=true;V.didPan=false;V.panSX=e.clientX;V.panSY=e.clientY;V.panOX=V.offX;V.panOY=V.offY;
     canvas.classList.add('panning');e.preventDefault(); 
+  } else if(e.button===0) {
+    // Clic gauche - préparer potentiel drag
+    V.panSX=e.clientX;V.panSY=e.clientY;V.panOX=V.offX;V.panOY=V.offY;
   }
 });
 canvas.addEventListener('mousemove',e=>{
   const r=canvas.getBoundingClientRect(),[cx,cy]=s2c(e.clientX-r.left,e.clientY-r.top);
+  
   if(V.panning){ 
     const dx=e.clientX-V.panSX,dy=e.clientY-V.panSY; 
     if(Math.abs(dx)>2||Math.abs(dy)>2)V.didPan=true; 
     V.offX=V.panOX+dx;V.offY=V.panOY+dy;dirty(); 
+  } else if(e.buttons===1 && !e.ctrlKey) {
+    // Clic gauche maintenu - vérifier si déplacement
+    const dx=e.clientX-V.panSX,dy=e.clientY-V.panSY;
+    if(Math.abs(dx)>5||Math.abs(dy)>5) {
+      // Mouvement détecté - activer drag
+      V.panning=true;V.didPan=true;
+      canvas.classList.add('panning');
+    }
+  } else if(!V.hover||V.hover[0]!==cx||V.hover[1]!==cy){ 
+    V.hover=[cx,cy];dirty(); 
   }
-  else if(!V.hover||V.hover[0]!==cx||V.hover[1]!==cy){ V.hover=[cx,cy];dirty(); }
 });
 canvas.addEventListener('mouseup',()=>{V.panning=false;canvas.classList.remove('panning');});
 canvas.addEventListener('mouseleave',()=>{V.panning=false;canvas.classList.remove('panning');V.hover=null;dirty();});
 canvas.addEventListener('click',e=>{
   if(V.didPan){V.didPan=false;return;} 
   if(e.ctrlKey)return;
-  const r=canvas.getBoundingClientRect(),[cx,cy]=s2c(e.clientX-r.left,e.clientY-r.top); 
-  reveal(cx,cy);
+  
+  // Vérifier si c'était un clic rapide (pas un drag)
+  const clickDuration = Date.now() - V.mouseDownTime;
+  const dx = Math.abs(e.clientX - V.mouseDownX);
+  const dy = Math.abs(e.clientY - V.mouseDownY);
+  
+  if(clickDuration < 300 && dx < 5 && dy < 5) {
+    const r=canvas.getBoundingClientRect(),[cx,cy]=s2c(e.clientX-r.left,e.clientY-r.top); 
+    reveal(cx,cy);
+  }
 });
 canvas.addEventListener('contextmenu',e=>{
   e.preventDefault(); 
@@ -1189,14 +1250,42 @@ canvas.addEventListener('touchmove',e=>{
 canvas.addEventListener('touchend',e=>{
   e.preventDefault();
   if(e.changedTouches.length===1&&!V.didPan&&!e.touches.length){ 
-    const t=e.changedTouches[0],r=canvas.getBoundingClientRect(),[cx,cy]=s2c(t.clientX-r.left,t.clientY-r.top); 
-    if(G.mobileMode==='reveal')reveal(cx,cy);else flag(cx,cy); 
+    const t=e.changedTouches[0],r=canvas.getBoundingClientRect(),[cx,cy]=s2c(t.clientX-r.left,t.clientY-r.top);
+    if(G.mobileMode==='reveal') reveal(cx,cy);
+    else if(G.mobileMode==='flag') flag(cx,cy);
+    // Si neutral, ne rien faire
   }
   V.panning=false;V.didPan=false;ltd=null;
 },{passive:false});
 
-document.getElementById('mobile-reveal').addEventListener('click',()=>{G.mobileMode='reveal';document.getElementById('mobile-reveal').classList.add('active');document.getElementById('mobile-flag').classList.remove('active');});
-document.getElementById('mobile-flag').addEventListener('click',()=>{G.mobileMode='flag';document.getElementById('mobile-flag').classList.add('active');document.getElementById('mobile-reveal').classList.remove('active');});
+function updateMobileButtons() {
+  const revealBtn = document.getElementById('mobile-reveal');
+  const flagBtn = document.getElementById('mobile-flag');
+  
+  revealBtn.classList.remove('active');
+  flagBtn.classList.remove('active');
+  
+  if(G.mobileMode === 'reveal') revealBtn.classList.add('active');
+  else if(G.mobileMode === 'flag') flagBtn.classList.add('active');
+}
+
+document.getElementById('mobile-reveal').addEventListener('click',()=>{
+  if(G.mobileMode === 'reveal') {
+    G.mobileMode = 'neutral'; // Désactiver
+  } else {
+    G.mobileMode = 'reveal';
+  }
+  updateMobileButtons();
+});
+
+document.getElementById('mobile-flag').addEventListener('click',()=>{
+  if(G.mobileMode === 'flag') {
+    G.mobileMode = 'neutral'; // Désactiver
+  } else {
+    G.mobileMode = 'flag';
+  }
+  updateMobileButtons();
+});
 
 modalOverlay.addEventListener('click',e=>{if(e.target===modalOverlay)modalOverlay.classList.remove('show');});
 
@@ -1227,6 +1316,10 @@ window.addEventListener('load',()=>{
   initBg(); loadSettings(); initPanels();
   if(!loadGame()) newGame();
   dirty();
+  
+  // Initialiser les boutons mobiles
+  updateMobileButtons();
+  
   window.addEventListener('resize',()=>{
     bgCanvas.width=window.innerWidth;bgCanvas.height=window.innerHeight;
     const h = document.getElementById('header').offsetHeight;
